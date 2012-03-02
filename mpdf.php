@@ -32690,7 +32690,7 @@ function SetSourceFile($filename) {
 	$fn =& $this->current_filename;
 	if (!isset($this->parsers[$fn]))
 		// $this->parsers[$fn] =& new fpdi_pdf_parser($fn,$this);
-		$this->parsers[$fn] = new fpdi_pdf_parser($fn,$this);
+		$this->parsers[$fn] = new fpdi_pdf_parser($fn);
 	if (!$this->parsers[$fn]->success) {
 		$this->Error($this->parsers[$fn]->errormsg);	// Delete this line to return false on fail
 		return false;

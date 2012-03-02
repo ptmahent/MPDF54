@@ -18,6 +18,10 @@
 //
 
 
+function error($str) {
+	die($str);
+}
+
 class fpdi_pdf_parser extends pdf_parser {
 
     /**
@@ -60,8 +64,7 @@ class fpdi_pdf_parser extends pdf_parser {
      * @param string $filename  Source-Filename
      * @param object $fpdi      Object of type fpdi
      */
-    function fpdi_pdf_parser($filename,&$fpdi) {
-        $this->fpdi =& $fpdi;
+    function fpdi_pdf_parser($filename) {
 	  $this->filename = $filename;
 
         parent::pdf_parser($filename);
@@ -99,7 +102,7 @@ class fpdi_pdf_parser extends pdf_parser {
         $pageno = ((int) $pageno) - 1;
 
         if ($pageno < 0 || $pageno >= $this->getPageCount()) {
-            $this->fpdi->error("Pagenumber is wrong!");
+            error("Pagenumber is wrong!");
         }
 
         $this->pageno = $pageno;
@@ -218,10 +221,10 @@ class fpdi_pdf_parser extends pdf_parser {
 			if (function_exists('gzuncompress')) {
                         $stream = (strlen($stream) > 0) ? @gzuncompress($stream) : '';                        
 			} else {
-                        $this->fpdi->error(sprintf("To handle %s filter, please compile php with zlib support.",$_filter[1]));
+                        error(sprintf("To handle %s filter, please compile php with zlib support.",$_filter[1]));
 			}
 			if ($stream === false) { 
-                        $this->fpdi->error("Error while decompressing stream.");
+                        error("Error while decompressing stream.");
 			}
                 break;
 			// mPDF 4.2.003
@@ -241,7 +244,7 @@ class fpdi_pdf_parser extends pdf_parser {
 			$stream = $stream;
 			break;
                 default:
-			$this->fpdi->error(sprintf("Unsupported Filter: %s",$_filter[1]));
+			error(sprintf("Unsupported Filter: %s",$_filter[1]));
             }
         }
         
