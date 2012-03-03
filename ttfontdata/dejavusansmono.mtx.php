@@ -21,5 +21,7 @@ $smp=false;
 $BMPselected=true;
 $fontkey='dejavusansmono';
 $panose='0 0 2 11 6 9 3 8 4 2 2 4';
-$haskerninfo=false;
+$kerninfo=array (
+);
+$haskerninfo=true;
 ?>
