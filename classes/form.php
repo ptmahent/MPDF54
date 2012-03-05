@@ -594,7 +594,7 @@ function _putFormsCatalog() {
 function SetFormButtonJS( $name, $js ) {
 	$js = str_replace("\t",' ', trim($js) );
 	if ( isset($name) && isset($js) ) {
-		$this->array_form_button_js[$this->mpdf->_escape($name)] = array(
+		$this->array_form_button_js[Text::escape($name)] = array(
 				'js' => $js
 				);
 	}
@@ -603,7 +603,7 @@ function SetFormButtonJS( $name, $js ) {
 function SetFormChoiceJS( $name, $js ) {
 	$js = str_replace("\t",' ', trim($js) );
 	if ( isset($name) && isset($js) ) {
-		$this->array_form_choice_js[$this->mpdf->_escape($name)] = array(
+		$this->array_form_choice_js[Text::escape($name)] = array(
 				'js' => $js
 				);
 	}
@@ -614,7 +614,7 @@ function SetFormTextJS( $name, $js) {
 	$j = str_replace("\t",' ', trim($js[$i][1]) );
 	$format = $js[$i][0];
 	if ($name) {
-		$this->array_form_text_js[$this->mpdf->_escape($name)][$format] = array('js' => $j);
+		$this->array_form_text_js[Text::escape($name)][$format] = array('js' => $j);
 	}
    }
 }
@@ -795,7 +795,7 @@ function SetFormText( $w, $h, $name, $value = '', $default = '', $title = '', $f
 		$this->SetFormButton( $w, $h, $name, $value, 'js_button', $title, $flags, false, false, $background_col, $border_col, $noprint);
 		// pos => 1 = no caption, icon only; 0 = caption only 
 		if ($image_id) {
-			$this->form_button_icon[$this->mpdf->_escape($name)] = array(
+			$this->form_button_icon[Text::escape($name)] = array(
 				'pos' => 1, 	
 				'image_id' => $image_id, 
 				'Indexed' => $indexed,
@@ -1114,19 +1114,19 @@ function _putform_bt( $form, $hPt ) {
 		$this->mpdf->_out("/MK << $temp >>");
 		$this->mpdf->_out('/Ff '.$this->_setflag($form['FF']) );
 		if ( $form['activ'] ) {
-       			$this->mpdf->_out('/V /'.$this->mpdf->_escape($form['V']).' ');
-       			$this->mpdf->_out('/DV /'.$this->mpdf->_escape($form['V']).' ');
-       			$this->mpdf->_out('/AS /'.$this->mpdf->_escape($form['V']).' ');
+       			$this->mpdf->_out('/V /'.Text::escape($form['V']).' ');
+       			$this->mpdf->_out('/DV /'.Text::escape($form['V']).' ');
+       			$this->mpdf->_out('/AS /'.Text::escape($form['V']).' ');
 		} else {
       			$this->mpdf->_out('/AS /Off ');
 		}
 		if ($this->formUseZapD) {
 			$this->mpdf->_out('/DA (/F'.$this->mpdf->fonts['czapfdingbats']['i'].' 0 Tf '.$radio_color.' rg)');
-			$this->mpdf->_out("/AP << /N << /".$this->mpdf->_escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off /Off >> >>");
+			$this->mpdf->_out("/AP << /N << /".Text::escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off /Off >> >>");
 		}
 		else {
 			$this->mpdf->_out('/DA (/F'.$this->mpdf->fonts[$this->mpdf->CurrentFont['fontkey']]['i'].' 0 Tf '.$radio_color.' rg)');	
-			$this->mpdf->_out("/AP << /N << /".$this->mpdf->_escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
+			$this->mpdf->_out("/AP << /N << /".Text::escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
 		}
       	$this->mpdf->_out('/Opt [ '.$this->mpdf->_textstring($form['OPT']).' '.$this->mpdf->_textstring($form['OPT']).' ]');
 	}
@@ -1154,16 +1154,16 @@ function _putform_bt( $form, $hPt ) {
 			$this->mpdf->_out('/DA (/F'.$this->mpdf->fonts['czapfdingbats']['i'].' 0 Tf '.$radio_color.' rg)');
 		else
 			$this->mpdf->_out('/DA (/F'.$this->mpdf->fonts[$this->mpdf->CurrentFont['fontkey']]['i'].' 0 Tf '.$radio_color.' rg)');
-		$this->mpdf->_out("/AP << /N << /".$this->mpdf->_escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
+		$this->mpdf->_out("/AP << /N << /".Text::escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
 		if ( $form['activ'] ) {
-			$this->mpdf->_out('/V /'.$this->mpdf->_escape($form['V']).' ');
-			$this->mpdf->_out('/DV /'.$this->mpdf->_escape($form['V']).' ');
-			$this->mpdf->_out('/AS /'.$this->mpdf->_escape($form['V']).' ');
+			$this->mpdf->_out('/V /'.Text::escape($form['V']).' ');
+			$this->mpdf->_out('/DV /'.Text::escape($form['V']).' ');
+			$this->mpdf->_out('/AS /'.Text::escape($form['V']).' ');
 		}
 		else {
 			$this->mpdf->_out('/AS /Off ');
 		}
-		$this->mpdf->_out("/AP << /N << /".$this->mpdf->_escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
+		$this->mpdf->_out("/AP << /N << /".Text::escape($form['V'])." ".($this->mpdf->n+1)." 0 R /Off ".($this->mpdf->n+2)." 0 R >> >>");
 	//	$this->mpdf->_out('/Opt [ '.$this->mpdf->_textstring($form['OPT']).' '.$this->mpdf->_textstring($form['OPT']).' ]');
 	}
 

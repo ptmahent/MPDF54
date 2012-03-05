@@ -1890,7 +1890,7 @@ function Arcto($x1, $y1, $x2, $y2, $rx, $ry, $angle, $largeArcFlag, $sweepFlag) 
 				$this->mpdf_ref->UTF8StringToArray($txt);	// mPDF 5.0 adds chars to subset list
 				$txt= $this->mpdf_ref->UTF8ToUTF16BE($txt, false);
 			}
-			$txt='('.$this->mpdf_ref->_escape($txt).')'; 
+			$txt='('.Text::escape($txt).')'; 
 			$this->mpdf_ref->CurrentFont['used']= true;
 
 			$pdfx = $x - $tw/$this->kp;	// mPDF 4.4.009

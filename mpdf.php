@@ -38,6 +38,7 @@ if (!defined('_MPDF_URI')) define('_MPDF_URI',_MPDF_PATH);
 require_once(_MPDF_PATH.'includes/functions.php');
 require_once(_MPDF_PATH.'config_cp.php');
 require_once(_MPDF_PATH.'classes/cache.php');
+require_once(_MPDF_PATH.'classes/helpers.php');
 
 
 if (!defined('_JPGRAPH_PATH')) define("_JPGRAPH_PATH", _MPDF_PATH.'jpgraph/'); 
@@ -50,7 +51,7 @@ if (!defined('_MPDF_TTFONTDATAPATH')) { define('_MPDF_TTFONTDATAPATH',_MPDF_PATH
 $errorlevel=error_reporting();
 $errorlevel=error_reporting($errorlevel & ~E_NOTICE);
 
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 // mPDF 5.3.76
 if(function_exists("date_default_timezone_set")) {
@@ -1323,7 +1324,7 @@ function _setPageSize($format, &$orientation) {
 			$format=$m[1]; 
 			$pfo='L'; 
 		}
-		$format = $this->_getPageFormat($format);
+		$format = Numeric::pageFormat($format);
 		if (!$format) { $this->Error('Unknown page format: '.$format); }
 		else { $orientation = $pfo; }
 
@@ -1357,68 +1358,6 @@ function _setPageSize($format, &$orientation) {
 
 	$this->w=$this->wPt/_MPDFK;
 	$this->h=$this->hPt/_MPDFK;
-}
-
-function _getPageFormat($format) {
-		switch (strtoupper($format)) {
-			case '4A0': {$format = array(4767.87,6740.79); break;}
-			case '2A0': {$format = array(3370.39,4767.87); break;}
-			case 'A0': {$format = array(2383.94,3370.39); break;}
-			case 'A1': {$format = array(1683.78,2383.94); break;}
-			case 'A2': {$format = array(1190.55,1683.78); break;}
-			case 'A3': {$format = array(841.89,1190.55); break;}
-			case 'A4': default: {$format = array(595.28,841.89); break;}
-			case 'A5': {$format = array(419.53,595.28); break;}
-			case 'A6': {$format = array(297.64,419.53); break;}
-			case 'A7': {$format = array(209.76,297.64); break;}
-			case 'A8': {$format = array(147.40,209.76); break;}
-			case 'A9': {$format = array(104.88,147.40); break;}
-			case 'A10': {$format = array(73.70,104.88); break;}
-			case 'B0': {$format = array(2834.65,4008.19); break;}
-			case 'B1': {$format = array(2004.09,2834.65); break;}
-			case 'B2': {$format = array(1417.32,2004.09); break;}
-			case 'B3': {$format = array(1000.63,1417.32); break;}
-			case 'B4': {$format = array(708.66,1000.63); break;}
-			case 'B5': {$format = array(498.90,708.66); break;}
-			case 'B6': {$format = array(354.33,498.90); break;}
-			case 'B7': {$format = array(249.45,354.33); break;}
-			case 'B8': {$format = array(175.75,249.45); break;}
-			case 'B9': {$format = array(124.72,175.75); break;}
-			case 'B10': {$format = array(87.87,124.72); break;}
-			case 'C0': {$format = array(2599.37,3676.54); break;}
-			case 'C1': {$format = array(1836.85,2599.37); break;}
-			case 'C2': {$format = array(1298.27,1836.85); break;}
-			case 'C3': {$format = array(918.43,1298.27); break;}
-			case 'C4': {$format = array(649.13,918.43); break;}
-			case 'C5': {$format = array(459.21,649.13); break;}
-			case 'C6': {$format = array(323.15,459.21); break;}
-			case 'C7': {$format = array(229.61,323.15); break;}
-			case 'C8': {$format = array(161.57,229.61); break;}
-			case 'C9': {$format = array(113.39,161.57); break;}
-			case 'C10': {$format = array(79.37,113.39); break;}
-			case 'RA0': {$format = array(2437.80,3458.27); break;}
-			case 'RA1': {$format = array(1729.13,2437.80); break;}
-			case 'RA2': {$format = array(1218.90,1729.13); break;}
-			case 'RA3': {$format = array(864.57,1218.90); break;}
-			case 'RA4': {$format = array(609.45,864.57); break;}
-			case 'SRA0': {$format = array(2551.18,3628.35); break;}
-			case 'SRA1': {$format = array(1814.17,2551.18); break;}
-			case 'SRA2': {$format = array(1275.59,1814.17); break;}
-			case 'SRA3': {$format = array(907.09,1275.59); break;}
-			case 'SRA4': {$format = array(637.80,907.09); break;}
-			case 'LETTER': {$format = array(612.00,792.00); break;}
-			case 'LEGAL': {$format = array(612.00,1008.00); break;}
-			case 'LEDGER': {$format = array(279.00,432.00); break;}	// mPDF 5.3.38
-			case 'TABLOID': {$format = array(279.00,432.00); break;}	// mPDF 5.3.38
-			case 'EXECUTIVE': {$format = array(521.86,756.00); break;}
-			case 'FOLIO': {$format = array(612.00,936.00); break;}
-			case 'B': {$format=array(362.83,561.26 );	 break;}		//	'B' format paperback size 128x198mm
-			case 'A': {$format=array(314.65,504.57 );	 break;}		//	'A' format paperback size 111x178mm
-			case 'DEMY': {$format=array(382.68,612.28 );  break;}		//	'Demy' format paperback size 135x216mm
-			case 'ROYAL': {$format=array(433.70,663.30 );  break;}	//	'Royal' format paperback size 153x234mm
-			default: $format = false;
-		}
-	return $format;
 }
 
 
@@ -2469,29 +2408,8 @@ function AddSpotColor($name, $c, $m, $y, $k) {
 	}
 }
 
-function SetColor($col, $type='') {
-	$out = '';
-	// mPDF 5.3.74
-	if ($col{0}==3 || $col{0}==5) {	// RGB / RGBa
-		$out = sprintf('%.3F %.3F %.3F rg',ord($col{1})/255,ord($col{2})/255,ord($col{3})/255);
-	}
-	else if ($col{0}==1) {	// GRAYSCALE
-		$out = sprintf('%.3F g',ord($col{1})/255);
-	}
-	else if ($col{0}==2) {	// SPOT COLOR
-		$out = sprintf('/CS%d cs %.3F scn',ord($col{1}),ord($col{2})/100);
-	}
-	else if ($col{0}==4 || $col{0}==6) {	// CMYK / CMYKa
-		$out = sprintf('%.3F %.3F %.3F %.3F k', ord($col{1})/100, ord($col{2})/100, ord($col{3})/100, ord($col{4})/100);
-	}
-	if ($type=='Draw') { $out = strtoupper($out); }	// e.g. rg => RG
-	else if ($type=='CodeOnly') { $out = preg_replace('/\s(rg|g|k)/','',$out); }
-	return $out; 
-}
-
-
 function SetDColor($col, $return=false) {
-	$out = $this->SetColor($col, 'Draw');
+	$out = Color::setColor($col, 'Draw');
 	if ($return) { return $out; }
 	if ($out=='') { return ''; }
 	$this->DrawColor = $out;
@@ -2500,7 +2418,7 @@ function SetDColor($col, $return=false) {
 }
 
 function SetFColor($col, $return=false) {
-	$out = $this->SetColor($col, 'Fill');
+	$out = Color::setColor($col, 'Fill');
 	if ($return) { return $out; }
 	if ($out=='') { return ''; }
 	$this->FillColor = $out;
@@ -2510,7 +2428,7 @@ function SetFColor($col, $return=false) {
 }
 
 function SetTColor($col, $return=false) {
-	$out = $this->SetColor($col, 'Text');
+	$out = Color::setColor($col, 'Text');
 	if ($return) { return $out; }
 	if ($out=='') { return ''; }
 	$this->TextColor = $out;
@@ -2546,22 +2464,6 @@ function SetTextColor($r,$g=-1,$b=-1,$col4=-1, $return=false) {
 	else { $col = $this->ConvertColor('cmyk('.$r.','.$g.','.$b.','.$col4.')'); }
 	$out = $this->SetTColor($col, $return);
 	return $out;
-}
-
-function _getCharWidth(&$cw, $u, $isdef=true) {
-	if ($u==0) { $w = false; }
-	else { $w = (ord($cw[$u*2]) << 8) + ord($cw[$u*2+1]); }
-	if ($w == 65535) { return 0; }
-	else if ($w) { return $w; }
-	else if ($isdef) { return false; }
-	else { return 0; }
-}
-
-function _charDefined(&$cw, $u) {
-	if ($u==0) { return false; }
-	$w = (ord($cw[$u*2]) << 8) + ord($cw[$u*2+1]);
-	if ($w) { return true; }
-	else { return false; }
 }
 
 // mPDF 5.3.04
@@ -2613,7 +2515,7 @@ function GetCharWidthNonCore($c, $addSubset=true) {
 /*-- END CJK-FONTS --*/
 			if ($char == 173) { return 0; }	// Soft Hyphens	// mPDF 5.3.07
 			else if ($this->S && isset($this->upperCase[$char])) {
-				$charw = $this->_getCharWidth($this->CurrentFont['cw'],$this->upperCase[$char]);
+				$charw = Text::getCharWidth($this->CurrentFont['cw'],$this->upperCase[$char]);
 				if ($charw!==false) { 
 					$charw = $charw*$this->smCapsScale * $this->smCapsStretch/100;
 					$w+=$charw; 
@@ -2623,7 +2525,7 @@ function GetCharWidthNonCore($c, $addSubset=true) {
 				else { $w += 500; }
 			}
 			else {
-				$charw = $this->_getCharWidth($this->CurrentFont['cw'],$char);
+				$charw = Text::getCharWidth($this->CurrentFont['cw'],$char);
 				if ($charw!==false) { $w+=$charw; }
 				elseif(isset($this->CurrentFont['desc']['MissingWidth'])) { $w += $this->CurrentFont['desc']['MissingWidth']; }
 				elseif(isset($this->CurrentFont['MissingWidth'])) { $w += $this->CurrentFont['MissingWidth']; }
@@ -2684,7 +2586,7 @@ function GetStringWidth($s, $addSubset=true) {
 /*-- END CJK-FONTS --*/
 					foreach($unicode as $char) {
 						if ($this->S && isset($this->upperCase[$char])) {
-							$charw = $this->_getCharWidth($cw,$this->upperCase[$char]);
+							$charw = Text::getCharWidth($cw,$this->upperCase[$char]);
 							if ($charw!==false) { 
 								$charw = $charw*$this->smCapsScale * $this->smCapsStretch/100;
 								$w+=$charw; 
@@ -2694,7 +2596,7 @@ function GetStringWidth($s, $addSubset=true) {
 							else { $w += 500; }
 						}
 						else {
-							$charw = $this->_getCharWidth($cw,$char);
+							$charw = Text::getCharWidth($cw,$char);
 							if ($charw!==false) { $w+=$charw; }
 							elseif(isset($this->CurrentFont['desc']['MissingWidth'])) { $w += $this->CurrentFont['desc']['MissingWidth']; }
 							elseif(isset($this->CurrentFont['MissingWidth'])) { $w += $this->CurrentFont['MissingWidth']; }
@@ -3284,14 +3186,14 @@ function Text($x,$y,$txt) {
 		else {
 			//Convert string to UTF-16BE without BOM
 			$txt2= $this->UTF8ToUTF16BE($txt2, false);
-			$s.=sprintf('BT '.$aix.' (%s) Tj ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,$this->_escape($txt2));
+			$s.=sprintf('BT '.$aix.' (%s) Tj ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,Text::escape($txt2));
 		}
 	}
 	else {
 	      $txt2 = str_replace(chr(160),chr(32),$txt);
 		if ($this->kerning && $this->useKerning) { $s .= $this->_kern($txt2, '', $aix, $x, $y); }
 		else {
-			$s.=sprintf('BT '.$aix.' (%s) Tj ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,$this->_escape($txt2));
+			$s.=sprintf('BT '.$aix.' (%s) Tj ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,Text::escape($txt2));
 		}
 	}
 	if($this->U && $txt!='') {
@@ -3736,7 +3638,7 @@ function Cell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='', $curre
 			$space = " ";
 			//Convert string to UTF-16BE without BOM
 			$space= $this->UTF8ToUTF16BE($space , false);
-			$space=$this->_escape($space ); 
+			$space=Text::escape($space ); 
 			$sub .=sprintf('BT '.$aix,($this->x+$dx)*_MPDFK,($this->h-($this->y+$baseline+$va))*_MPDFK);
 			$t = explode(' ',$txt);
 			$sub .=sprintf(' %.3F Tc [',$this->charspacing);
@@ -3745,7 +3647,7 @@ function Cell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='', $curre
 				$tx = $t[$i]; 
 				//Convert string to UTF-16BE without BOM
 				$tx = $this->UTF8ToUTF16BE($tx , false);
-				$tx = $this->_escape($tx); 
+				$tx = Text::escape($tx); 
 				$sub .=sprintf('(%s) ',$tx);
 				if (($i+1)<$numt) {	// mPDF 5.3.07
 					$adj = -($this->ws)*1000/$this->FontSizePt;
@@ -3772,7 +3674,7 @@ function Cell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='', $curre
 				if (!$this->usingCoreFont) {
 					$txt2 = $this->UTF8ToUTF16BE($txt2, false);
 				}
-				$txt2=$this->_escape($txt2); 
+				$txt2=Text::escape($txt2); 
 				$sub .=sprintf('BT '.$aix.' (%s) Tj ET',($this->x+$dx)*_MPDFK,($this->h-($this->y+$baseline+$va))*_MPDFK,$txt2);
 			}
 		  }
@@ -3878,7 +3780,7 @@ function _kern($txt, $mode, $aix, $x, $y) {
 		  $space = ' ';
 		  //Convert string to UTF-16BE without BOM
 		  $space= $this->UTF8ToUTF16BE($space , false);
-		  $space=$this->_escape($space ); 
+		  $space=Text::escape($space ); 
 		  $s = sprintf(' BT '.$aix,$x*_MPDFK,($this->h-$y)*_MPDFK);
 		  $t = explode(' ',$txt);
 		  for($i=0;$i<count($t);$i++) {
@@ -3893,7 +3795,7 @@ function _kern($txt, $mode, $aix, $x, $y) {
 				}
 				$tc = code2utf($unicode[$ti]);
 				$tc = $this->UTF8ToUTF16BE($tc, false);
-				$tj .= $this->_escape($tc); 
+				$tj .= Text::escape($tc); 
 			}
 			$tj .= ')';
 			$s.=sprintf(' %.3F Tc [%s] TJ',$this->charspacing,$tj);
@@ -3916,7 +3818,7 @@ function _kern($txt, $mode, $aix, $x, $y) {
 		}
 		$tx = code2utf($unicode[$i]);
 		$tx = $this->UTF8ToUTF16BE($tx, false);
-		$tj .= $this->_escape($tx); 
+		$tj .= Text::escape($tx); 
 	}
 	$tj .= ')';
 	$s.=sprintf(' BT '.$aix.' [%s] TJ ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,$tj);
@@ -3930,7 +3832,7 @@ function _kern($txt, $mode, $aix, $x, $y) {
 			$kern = -$this->CurrentFont['kerninfo'][$txt[($i-1)]][$txt[$i]];
 			$tj .= sprintf(')%d(',$kern);
 		}
-		$tj .= $this->_escape($txt[$i]); 
+		$tj .= Text::escape($txt[$i]); 
 	}
 	$tj .= ')';
 	$s.=sprintf(' BT '.$aix.' [%s] TJ ET ',$x*_MPDFK,($this->h-$y)*_MPDFK,$tj);
@@ -4018,7 +3920,7 @@ function _smallCaps($txt, $mode, $aix, $dx, $k, $baseline, $va) {	// mPDF 5.3.76
 			if (!$this->usingCoreFont) {
 				$txt = $this->UTF8ToUTF16BE($txt, false);
 			}
-			$txt=$this->_escape($txt); 
+			$txt=Text::escape($txt); 
 			$txt = '('.$txt.')';
 		}
 		if ($b[2]) { // space
@@ -7909,7 +7811,7 @@ function _putfonts() {
 			$widthstring = '';
 			$toUnistring = '';
 			foreach($font['subsets'][$sfid] AS $cp=>$u) {
-				$w = $this->_getCharWidth($font['cw'], $u); 
+				$w = Text::getCharWidth($font['cw'], $u); 
 				if ($w !== false) {
 					$widthstring .= $w.' ';
 				}
@@ -9704,7 +9606,7 @@ function _convImage(&$data, $colspace, $targetcs, $w, $h, $dpi, $mask) {
 				$trns=array(ord(substr($t,1,1)),ord(substr($t,3,1)),ord(substr($t,5,1))); 
 				$trnsrgb = $trns;
 				if ($targetcs=='DeviceCMYK') {
-					$col = $this->rgb2cmyk(array(3,$trns[0],$trns[1],$trns[2]));
+					$col = Color::rgb2cmyk(array(3,$trns[0],$trns[1],$trns[2]));
 					$c1 = intval($col[1]*2.55);
 					$c2 = intval($col[2]*2.55);
 					$c3 = intval($col[3]*2.55);
@@ -9726,7 +9628,7 @@ function _convImage(&$data, $colspace, $targetcs, $w, $h, $dpi, $mask) {
 					$trns=array($r,$g,$b);	// ****
 					$trnsrgb = $trns;
 					if ($targetcs=='DeviceCMYK') {
-						$col = $this->rgb2cmyk(array(3,$r,$g,$b));
+						$col = Color::rgb2cmyk(array(3,$r,$g,$b));
 						$c1 = intval($col[1]*2.55);
 						$c2 = intval($col[2]*2.55);
 						$c3 = intval($col[3]*2.55);
@@ -9755,7 +9657,7 @@ function _convImage(&$data, $colspace, $targetcs, $w, $h, $dpi, $mask) {
 				}
 
 				if ($targetcs=='DeviceCMYK') {
-					$col = $this->rgb2cmyk(array(3,$r,$g,$b));
+					$col = Color::rgb2cmyk(array(3,$r,$g,$b));
 					$c1 = intval($col[1]*2.55);
 					$c2 = intval($col[2]*2.55);
 					$c3 = intval($col[3]*2.55);
@@ -9963,7 +9865,7 @@ function _UTF16BEtextstring($s) {
 		$s = $this->_RC4($this->_objectkey($this->_current_obj_id), $s);
 	}
 /*-- END ENCRYPTION --*/
-	return '('. $this->_escape($s).')';
+	return '('. Text::escape($s).')';
 }
 
 function _textstring($s) {
@@ -9972,14 +9874,7 @@ function _textstring($s) {
 		$s = $this->_RC4($this->_objectkey($this->_current_obj_id), $s);
 	}
 /*-- END ENCRYPTION --*/
-	return '('. $this->_escape($s).')';
-}
-
-
-function _escape($s)
-{
-	// the chr(13) substitution fixes the Bugs item #1421290.
-	return strtr($s, array(')' => '\\)', '(' => '\\(', '\\' => '\\\\', chr(13) => '\r'));
+	return '('. Text::escape($s).')';
 }
 
 function _putstream($s) {
@@ -12453,7 +12348,7 @@ function WriteHTML($html,$sub=0,$init=true,$close=true) {
 			if (strlen($e) == 0) { continue; }
 
 			$e = strcode2utf($e);
-			$e = $this->lesser_entity_decode($e);
+			$e = Text::lesser_entity_decode($e);
 
 			if ($this->usingCoreFont) { 
 				// mPDF 5.3.22
@@ -13758,10 +13653,10 @@ function fixCSS($prop) {
 			}
 			else {
 				if(preg_match('/([0-9a-zA-Z]*)-L/i',$v,$m)) {	// e.g. A4-L = A$ landscape
-					$ft = $this->_getPageFormat($m[1]);
+					$ft = Numeric::pageFormat($m[1]);
 					$format = array($ft[1],$ft[0]);
 				}
-				else { $format = $this->_getPageFormat($v); }
+				else { $format = Numeric::pageFormat($v); }
 				if ($format) { $newprop['SHEET-SIZE'] = array($format[0]/_MPDFK, $format[1]/_MPDFK); }
 			}
 		}
@@ -14348,7 +14243,7 @@ function MergeCSS($inherit,$tag,$attr) {
 		  if ($this->ColActive || $this->keep_block_together) { 
 		  	if (isset($this->blk[$this->blklvl-1]['bgcolor']) && $this->blk[$this->blklvl-1]['bgcolor']) { // Doesn't officially inherit, but default value is transparent (?=inherited)
 				$cor = $this->blk[$this->blklvl-1]['bgcolorarray' ];
-				$p['BACKGROUND-COLOR'] = $this->_colAtoString($cor);
+				$p['BACKGROUND-COLOR'] = Color::array2string($cor);
 			}
 		  }
 
@@ -14363,7 +14258,7 @@ function MergeCSS($inherit,$tag,$attr) {
 		if (isset($biilp[ 'B' ]) && $biilp[ 'B' ]) { $p['FONT-WEIGHT'] = 'bold'; }
 		if (isset($biilp[ 'colorarray' ]) && $biilp[ 'colorarray' ]) { 
 			$cor = $biilp[ 'colorarray' ];
-			$p['COLOR'] = $this->_colAtoString($cor);
+			$p['COLOR'] = Color::array2string($cor);
 		}
 		if (isset($biilp[ 'fontkerning' ])) {
 			if ($biilp[ 'fontkerning' ]) { $p['FONT-KERNING'] = 'normal'; }
@@ -14392,7 +14287,7 @@ function MergeCSS($inherit,$tag,$attr) {
    		    if (isset($bilp[ 'B' ]) && $bilp[ 'B' ]) { $p['FONT-WEIGHT'] = 'bold'; }
    		    if (isset($bilp[ 'colorarray' ]) && $bilp[ 'colorarray' ]) { 
 			$cor = $bilp[ 'colorarray' ];
-			$p['COLOR'] = $this->_colAtoString($cor);
+			$p['COLOR'] = Color::array2string($cor);
 		    }
 		    if (isset($bilp[ 'toupper' ]) && $bilp[ 'toupper' ]) { $p['TEXT-TRANSFORM'] = 'uppercase'; }
 		    else if (isset($bilp[ 'tolower' ]) && $bilp[ 'tolower' ]) { $p['TEXT-TRANSFORM'] = 'lowercase'; }
@@ -16570,7 +16465,7 @@ function OpenTag($tag,$attr)
 	// mPDF 5.3.46
 	if(isset($attr['VALUE'])) { 
 		$attr['VALUE'] = strcode2utf($attr['VALUE']);
-		$attr['VALUE'] = $this->lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
+		$attr['VALUE'] = Text::lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
 		if ($this->onlyCoreFonts)
 			$attr['VALUE'] = mb_convert_encoding($attr['VALUE'], $this->mb_enc,'UTF-8'); 
 		// mPDF 5.3.58
@@ -16688,7 +16583,7 @@ function OpenTag($tag,$attr)
 	// mPDF 5.3.46
 	else $objattr['title'] = '';
 	$objattr['title'] = strcode2utf($objattr['title']);
-	$objattr['title'] = $this->lesser_entity_decode($objattr['title']);	// mPDF 5.3.58 
+	$objattr['title'] = Text::lesser_entity_decode($objattr['title']);	// mPDF 5.3.58 
 	if ($this->onlyCoreFonts)
 		$objattr['title'] = mb_convert_encoding($objattr['title'], $this->mb_enc,'UTF-8'); 
 	if ($this->useActiveForms) {
@@ -16697,7 +16592,7 @@ function OpenTag($tag,$attr)
 	// mPDF 5.3.46
 	if(isset($attr['VALUE'])) { 
 		$attr['VALUE'] = strcode2utf($attr['VALUE']);
-		$attr['VALUE'] = $this->lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
+		$attr['VALUE'] = Text::lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
 		if ($this->onlyCoreFonts)
 			$attr['VALUE'] = mb_convert_encoding($attr['VALUE'], $this->mb_enc,'UTF-8'); 
 		$objattr['value'] = $attr['VALUE']; 
@@ -17265,13 +17160,13 @@ function OpenTag($tag,$attr)
 		if (isset($attr['R'])) { $objattr['r']=$this->ConvertSize($attr['R'],$this->blk[$this->blklvl]['inner_width'],$this->FontSize,false); }
 		if(isset($attr['TOP-TEXT'])) { 
 			$objattr['top-text'] = strcode2utf($attr['TOP-TEXT']);
-			$objattr['top-text'] = $this->lesser_entity_decode($objattr['top-text']);
+			$objattr['top-text'] = Text::lesser_entity_decode($objattr['top-text']);
 			if ($this->onlyCoreFonts)
 				$objattr['top-text'] = mb_convert_encoding($objattr['top-text'], $this->mb_enc,'UTF-8'); 
 		}
 		if(isset($attr['BOTTOM-TEXT'])) { 
 			$objattr['bottom-text'] = strcode2utf($attr['BOTTOM-TEXT']);
-			$objattr['bottom-text'] = $this->lesser_entity_decode($objattr['bottom-text']);
+			$objattr['bottom-text'] = Text::lesser_entity_decode($objattr['bottom-text']);
 			if ($this->onlyCoreFonts)
 				$objattr['bottom-text'] = mb_convert_encoding($objattr['bottom-text'], $this->mb_enc,'UTF-8'); 
 		}
@@ -18455,9 +18350,9 @@ function OpenTag($tag,$attr)
 			$blt = $this->listnum.$this->list_number_suffix;
             	break;
 		default:
-			if ($this->listlvl % 3 == 1 && $this->_charDefined($this->CurrentFont['cw'],8226)) { $blt = "\xe2\x80\xa2"; } 	// &#8226; 
-			else if ($this->listlvl % 3 == 2 && $this->_charDefined($this->CurrentFont['cw'],9900)) { $blt = "\xe2\x9a\xac"; } // &#9900; 
-			else if ($this->listlvl % 3 == 0 && $this->_charDefined($this->CurrentFont['cw'],9642)) { $blt = "\xe2\x96\xaa"; } // &#9642; 
+			if ($this->listlvl % 3 == 1 && Text::charDefined($this->CurrentFont['cw'],8226)) { $blt = "\xe2\x80\xa2"; } 	// &#8226; 
+			else if ($this->listlvl % 3 == 2 && Text::charDefined($this->CurrentFont['cw'],9900)) { $blt = "\xe2\x9a\xac"; } // &#9900; 
+			else if ($this->listlvl % 3 == 0 && Text::charDefined($this->CurrentFont['cw'],9642)) { $blt = "\xe2\x96\xaa"; } // &#9642; 
 			else { $blt = '-'; }
 			break;
 		}
@@ -19889,7 +19784,7 @@ function printlistbuffer() {
 	$this->divheight = $this->lineheight;
 	$typefont = $this->FontFamily;
 	if (preg_match('/U\+([a-fA-F0-9]+)/i',$type,$m)) {
-		if ($this->_charDefined($this->CurrentFont['cw'],hexdec($m[1]))) { $list_item_marker = codeHex2utf($m[1]); }
+		if (Text::charDefined($this->CurrentFont['cw'],hexdec($m[1]))) { $list_item_marker = codeHex2utf($m[1]); }
 		else { $list_item_marker = '-'; }
 		$blt_width = $this->GetStringWidth($list_item_marker);
 		$typefont = '';
@@ -19968,7 +19863,7 @@ function printlistbuffer() {
               break;
           case 'disc':
 		  if ($this->PDFA || $this->PDFX) {
-			if ($this->_charDefined($this->CurrentFont['cw'],8226)) { $list_item_marker = "\xe2\x80\xa2"; } 	// &#8226; 
+			if (Text::charDefined($this->CurrentFont['cw'],8226)) { $list_item_marker = "\xe2\x80\xa2"; } 	// &#8226; 
 			else { $list_item_marker = '-'; }
   			$blt_width = $this->GetCharWidth($list_item_marker);	// mPDF 5.3.04
 			break;
@@ -19979,7 +19874,7 @@ function printlistbuffer() {
               break;
           case 'circle':
 		  if ($this->PDFA || $this->PDFX) {
-			if ($this->_charDefined($this->CurrentFont['cw'],9900)) { $list_item_marker = "\xe2\x9a\xac"; } // &#9900; 
+			if (Text::charDefined($this->CurrentFont['cw'],9900)) { $list_item_marker = "\xe2\x9a\xac"; } // &#9900; 
 			else { $list_item_marker = '-'; }
   			$blt_width = $this->GetCharWidth($list_item_marker);	// mPDF 5.3.04
 			break;
@@ -19990,7 +19885,7 @@ function printlistbuffer() {
               break;
           case 'square':
 		  if ($this->PDFA || $this->PDFX) {
-			if ($this->_charDefined($this->CurrentFont['cw'],9642)) { $list_item_marker = "\xe2\x96\xaa"; } // &#9642; 
+			if (Text::charDefined($this->CurrentFont['cw'],9642)) { $list_item_marker = "\xe2\x96\xaa"; } // &#9642; 
 			else { $list_item_marker = '-'; }
   			$blt_width = $this->GetCharWidth($list_item_marker);	// mPDF 5.3.04
 			break;
@@ -22658,7 +22553,7 @@ function setCSS($arrayaux,$type='',$tag='') {	// type= INLINE | BLOCK | LIST // 
 			if (strtoupper($v) == 'INVERT') {
 			   if ($this->colorarray) {
 				$cor = $this->colorarray;
-				$this->outlineparam['COLOR'] = $this->_invertColor($cor);
+				$this->outlineparam['COLOR'] = Color::invert($cor);
 			   }
 			   else {
 				$this->outlineparam['COLOR'] = $this->ConvertColor(255);
@@ -25115,11 +25010,11 @@ function _tableRect($x, $y, $w, $h, $bord=-1, $details=array(), $buffer=false, $
 			}
 			else { $this->SetDColor($this->ConvertColor(0)); }
 			if ($details[$side]['style'] == 'outset' || $details[$side]['style'] == 'groove') {
-				$nc = $this->_darkenColor($details[$side]['c']);
+				$nc = Color::darken($details[$side]['c']);
 				$this->SetDColor($nc); 
 			}
 			else if ($details[$side]['style'] == 'ridge' || $details[$side]['style'] == 'inset') {
-				$nc = $this->_lightenColor($details[$side]['c']);
+				$nc = Color::lighten($details[$side]['c']);
 				$this->SetDColor($nc);
 			}
 			$this->Line($lx1 + $xadj, $ly1 + $yadj, $lx2 - $xadj2, $ly2 - $yadj2);
@@ -25134,7 +25029,7 @@ function _tableRect($x, $y, $w, $h, $bord=-1, $details=array(), $buffer=false, $
 			$xadj3 = $yadj3 = $wadj3 = $hadj3 = 0;
 
 			if ($details[$side]['style'] == 'ridge' || $details[$side]['style'] == 'inset') {
-			   $nc = $this->_darkenColor($details[$side]['c']);
+			   $nc = Color::darken($details[$side]['c']);
 
 			   if ($bSeparate && $cort=='table') {
 				if ($side=='T') {
@@ -25181,7 +25076,7 @@ function _tableRect($x, $y, $w, $h, $bord=-1, $details=array(), $buffer=false, $
 			   else if ($side=='R') { $xadj3 = $this->LineWidth/2; $yadj3 = $this->LineWidth/2; }
 			}
 			else {
-			   $nc = $this->_lightenColor($details[$side]['c']);
+			   $nc = Color::lighten($details[$side]['c']);
 
 			   if ($bSeparate && $cort=='table') {
 				if ($side=='T') {
@@ -25290,52 +25185,6 @@ function _tableRect($x, $y, $w, $h, $bord=-1, $details=array(), $buffer=false, $
 
 
 /*-- TABLES --*/
-/*-- TABLES-ADVANCED-BORDERS --*/
-function _lightenColor($c) {
-	// mPDF 5.3.74
-	if (is_array($c)) { die('Color error in _lightencolor'); }
-	if ($c{0}==3 || $c{0}==5) { 	// RGB
-		list($h,$s,$l) = $this->rgb2hsl(ord($c{1})/255,ord($c{2})/255,ord($c{3})/255);
-		$l += ((1 - $l)*0.8);
-		list($r,$g,$b) = $this->hsl2rgb($h,$s,$l);
-		$ret = array(3,$r,$g,$b);
-	}
-	else if ($c{0}==4 || $c{0}==6) { 	// CMYK
-		$ret = array(4, max(0,(ord($c{1})-20)), max(0,(ord($c{2})-20)), max(0,(ord($c{3})-20)), max(0,(ord($c{4})-20)) );
-	}
-	else if ($c{0}==1) {	// Grayscale
-		$ret = array(1,min(255,(ord($c{1})+32)));
-	}
-	$c = array_pad($ret, 6, 0);
-	$cstr = pack("a1ccccc", $c[0], ($c[1] & 0xFF), ($c[2] & 0xFF), ($c[3] & 0xFF), ($c[4] & 0xFF), ($c[5] & 0xFF) ); 
-	return $cstr;
-}
-
-
-function _darkenColor($c) {
-	if (is_array($c)) { die('Color error in _darkenColor'); }
-	// mPDF 5.3.74
-	if ($c{0}==3 || $c{0}==5) { 	// RGB
-		list($h,$s,$l) = $this->rgb2hsl(ord($c{1})/255,ord($c{2})/255,ord($c{3})/255);
-		$s *= 0.25;
-		$l *= 0.75;
-		list($r,$g,$b) = $this->hsl2rgb($h,$s,$l);
-		$ret = array(3,$r,$g,$b);
- 	}
-	else if ($c{0}==4 || $c{0}==6) { 	// CMYK
-		$ret = array(4, min(100,(ord($c{1})+20)), min(100,(ord($c{2})+20)), min(100,(ord($c{3})+20)), min(100,(ord($c{4})+20)) );
- 	}
-	else if ($c{0}==1) {	// Grayscale
-		$ret = array(1,max(0,(ord($c{1})-32)));
- 	}
-	$c = array_pad($ret, 6, 0);
-	$cstr = pack("a1ccccc", $c[0], ($c[1] & 0xFF), ($c[2] & 0xFF), ($c[3] & 0xFF), ($c[4] & 0xFF), ($c[5] & 0xFF) ); 
-	return $cstr;
-}
-
-/*-- END TABLES-ADVANCED-BORDERS --*/
-
-
 
 function setBorder(&$var, $flag, $set = true) {
 	$flag = intval($flag);
@@ -27846,8 +27695,8 @@ function _putencryption() 	{
 		$this->_out('/V 1');
 		$this->_out('/R 2');
 	}
-	$this->_out('/O ('.$this->_escape($this->Ovalue).')');
-	$this->_out('/U ('.$this->_escape($this->Uvalue).')');
+	$this->_out('/O ('.Text::escape($this->Ovalue).')');
+	$this->_out('/U ('.Text::escape($this->Uvalue).')');
 	$this->_out('/P '.$this->Pvalue);
 }
 /*-- END ENCRYPTION --*/
@@ -30474,7 +30323,7 @@ function SubstituteCharsNonCore(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 		if (!$cw) { continue; }
 		$l = 0;
 		foreach($u AS $char) {
-			if ($char == 173 || $this->_charDefined($cw,$char) || ($char>1536 && $char<1791) || ($char>2304 && $char<3455 )) {
+			if ($char == 173 || Text::charDefined($cw,$char) || ($char>1536 && $char<1791) || ($char>2304 && $char<3455 )) {
 				$l++;
 			}
 			else {
@@ -30513,14 +30362,14 @@ function SubstituteCharsMB(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 	$ftype = '';
 	$u = array();
 	foreach($unicode AS $c => $char) {
-		if (($flag == 0 || $flag==2) && (!$this->_charDefined($cw,$char) || ($flag==2 && $char==32)) && $this->checkSIP && $char > 131071) { 	// Unicode Plane 2 (SIP)
+		if (($flag == 0 || $flag==2) && (!Text::charDefined($cw,$char) || ($flag==2 && $char==32)) && $this->checkSIP && $char > 131071) { 	// Unicode Plane 2 (SIP)
 			if (in_array($this->FontFamily ,$this->available_CJK_fonts)) { return 0; }
 			if ($flag==0) { $start=$c; }
 			$flag=2; 
 			$u[] = $char;
 		}
-		//else if (($flag == 0 || $flag==1) && $char != 173 && !$this->_charDefined($cw,$char) && ($char<1423 ||  ($char>3583 && $char < 11263))) { 
-		else if (($flag == 0 || $flag==1) && $char != 173 && (!$this->_charDefined($cw,$char) || ($flag==1 && $char==32)) && ($char<1536 ||  ($char>1791 && $char < 2304) || $char>3455)) { 
+		//else if (($flag == 0 || $flag==1) && $char != 173 && !Text::charDefined($cw,$char) && ($char<1423 ||  ($char>3583 && $char < 11263))) { 
+		else if (($flag == 0 || $flag==1) && $char != 173 && (!Text::charDefined($cw,$char) || ($flag==1 && $char==32)) && ($char<1536 ||  ($char>1791 && $char < 2304) || $char>3455)) { 
 			if ($flag==0) { $start=$c; }
 			$flag=1; 
 			$u[] = $char;
@@ -30548,7 +30397,7 @@ function SubstituteCharsMB(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 		if (!$cw) { return 0; }
 		$l = 0;
 		foreach($u AS $char) {
-			if ($this->_charDefined($cw,$char) || $char > 131071) {
+			if (Text::charDefined($cw,$char) || $char > 131071) {
 				$l++;
 			}
 			else { break; }
@@ -30582,7 +30431,7 @@ function SubstituteCharsMB(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 		if (!$cw) { return 0; }
 		$l = 0;
 		foreach($u AS $char) {
-			if ($this->_charDefined($cw,$char) || $char > 131071) {
+			if (Text::charDefined($cw,$char) || $char > 131071) {
 				$l++;
 			}
 			else { break; }
@@ -30665,7 +30514,7 @@ function SubstituteCharsMB(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 		if (!$cw) { continue; }
 		$l = 0;
 		foreach($u AS $char) {
-			if ($char == 173 || $this->_charDefined($cw,$char) || ($char>1536 && $char<1791) || ($char>2304 && $char<3455 )) { 	// Arabic and Indic 
+			if ($char == 173 || Text::charDefined($cw,$char) || ($char>1536 && $char<1791) || ($char>2304 && $char<3455 )) { 	// Arabic and Indic 
 				$l++;
 			}
 			else {
@@ -30818,7 +30667,7 @@ function all_entities_to_utf8($txt) {
 	// converts all &#nnn; or &#xHHH; to UTF-8 multibyte
 	$txt = strcode2utf($txt);
 
-	$txt = $this->lesser_entity_decode($txt);
+	$txt = Text::lesser_entity_decode($txt);
 	return ($txt);
 }
 
@@ -31032,8 +30881,8 @@ function WriteBarcode($code, $showtext=1, $x='', $y='', $size=1, $border=0, $pad
 
 			$this->SetFontSize(($outerfontsize/3)*3*$fh*$size*_MPDFK);	// 3mm numerals (FontSize is larger to account for space above/below characters)
 
-			if (!$this->usingCoreFont) { $cw = $this->_getCharWidth($this->CurrentFont['cw'],32)*3*$fh*$size/1000; }	// character width at 3mm
-			else { $cw = $this->_getCharWidth($this->CurrentFont['cw'],48)*3*$fh*$size/1000; }		// 48 == char "0"
+			if (!$this->usingCoreFont) { $cw = Text::getCharWidth($this->CurrentFont['cw'],32)*3*$fh*$size/1000; }	// character width at 3mm
+			else { $cw = Text::getCharWidth($this->CurrentFont['cw'],48)*3*$fh*$size/1000; }		// 48 == char "0"
 
 			// Outer left character
 			$y_text = $y + $paddingT + $bch - ($num_height/2); 
@@ -31322,7 +31171,7 @@ function AutoFont($html) {
 	foreach($a as $i => $e) {
 	   if($i%2==0) {
 		$e = strcode2utf($e);
-		$e = $this->lesser_entity_decode($e);
+		$e = Text::lesser_entity_decode($e);
 
 		// Use U=FFF0 and U+FFF1 to mark start and end of span tags to prevent nesting occurring
 		// "\xef\xbf\xb0" ##lthtmltag## "\xef\xbf\xb1" ##gthtmltag##
@@ -31779,7 +31628,7 @@ function ConvertColor($color="#000000"){
 		else if ($type=='cmyk') { $c = array(4,$cores[0],$cores[1],$cores[2],$cores[3]); }
 		else if ($type=='cmyka') { $c = array(6,$cores[0],$cores[1],$cores[2],$cores[3],$cores[4]*100); }	// mPDF 5.3.74
 		else if ($type=='hsl' || $type=='hsla') { 
-			$conv = $this->hsl2rgb($cores[0]/360,$cores[1],$cores[2]);
+			$conv = Color::hsl2rgb($cores[0]/360,$cores[1],$cores[2]);
 			if ($type=='hsl') { $c = array(3,$conv[0],$conv[1],$conv[2]); }
 			else if ($type=='hsla') { $c = array(5,$conv[0],$conv[1],$conv[2],$cores[3]*100); }	// mPDF 5.3.74
 		}
@@ -31804,57 +31653,57 @@ function ConvertColor($color="#000000"){
 				if ($this->PDFA && !$this->PDFAauto) { $this->PDFAXwarnings[] = "Spot color specified '".$this->spotColorIDs[$c[1]]."' (converted to process color)"; }
 				if ($this->restrictColorSpace!=3) { 
 					$sp = $this->spotColors[$this->spotColorIDs[$c[1]]]; 
-					$c = $this->cmyk2rgb(array(4,$sp['c'],$sp['m'],$sp['y'],$sp['k'])); 
+					$c = Color::cmyk2rgb(array(4,$sp['c'],$sp['m'],$sp['y'],$sp['k'])); 
 				}
 			}
 			else if ($this->restrictColorSpace==1) { 
 				$sp = $this->spotColors[$this->spotColorIDs[$c[1]]]; 
-				$c = $this->cmyk2gray(array(4,$sp['c'],$sp['m'],$sp['y'],$sp['k'])); 
+				$c = Color::cmyk2gray(array(4,$sp['c'],$sp['m'],$sp['y'],$sp['k'])); 
 			}
 		}
 		else if ($c[0]==3) {	// RGB
 			if ($this->PDFX || ($this->PDFA && $this->restrictColorSpace==3)) { 
 				if (($this->PDFA && !$this->PDFAauto) || ($this->PDFX && !$this->PDFXauto)) { $this->PDFAXwarnings[] = "RGB color specified '".$color."' (converted to CMYK)"; }
-				$c = $this->rgb2cmyk($c); 
+				$c = Color::rgb2cmyk($c); 
 			}
-			else if ($this->restrictColorSpace==1) { $c = $this->rgb2gray($c); }
-			else if ($this->restrictColorSpace==3) { $c = $this->rgb2cmyk($c); }
+			else if ($this->restrictColorSpace==1) { $c = Color::rgb2gray($c); }
+			else if ($this->restrictColorSpace==3) { $c = Color::rgb2cmyk($c); }
 		}
 		else if ($c[0]==4) {	// CMYK
 			if ($this->PDFA && $this->restrictColorSpace!=3) { 
 				if ($this->PDFA && !$this->PDFAauto) { $this->PDFAXwarnings[] = "CMYK color specified '".$color."' (converted to RGB)"; }
-				$c = $this->cmyk2rgb($c); 
+				$c = Color::cmyk2rgb($c); 
 			}
-			else if ($this->restrictColorSpace==1) { $c = $this->cmyk2gray($c); }
-			else if ($this->restrictColorSpace==2) { $c = $this->cmyk2rgb($c); }
+			else if ($this->restrictColorSpace==1) { $c = Color::cmyk2gray($c); }
+			else if ($this->restrictColorSpace==2) { $c = Color::cmyk2rgb($c); }
 		}
 		else if ($c[0]==5) {	// RGBa
 			if ($this->PDFX || ($this->PDFA && $this->restrictColorSpace==3)) { 
 				if (($this->PDFA && !$this->PDFAauto) || ($this->PDFX && !$this->PDFXauto)) { $this->PDFAXwarnings[] = "RGB color with transparency specified '".$color."' (converted to CMYK without transparency)"; }
-				$c = $this->rgb2cmyk($c); 
+				$c = Color::rgb2cmyk($c); 
 				$c = array(4, $c[1], $c[2], $c[3], $c[4]);
 			}
 			else if ($this->PDFA && $this->restrictColorSpace!=3) { 
 				if (!$this->PDFAauto) { $this->PDFAXwarnings[] = "RGB color with transparency specified '".$color."' (converted to RGB without transparency)"; }
-				$c = $this->rgb2cmyk($c); 
+				$c = Color::rgb2cmyk($c); 
 				$c = array(4, $c[1], $c[2], $c[3], $c[4]);
 			}
-			else if ($this->restrictColorSpace==1) { $c = $this->rgb2gray($c); }
-			else if ($this->restrictColorSpace==3) { $c = $this->rgb2cmyk($c); }
+			else if ($this->restrictColorSpace==1) { $c = Color::rgb2gray($c); }
+			else if ($this->restrictColorSpace==3) { $c = Color::rgb2cmyk($c); }
 		}
 		else if ($c[0]==6) {	// CMYKa
 			if ($this->PDFA && $this->restrictColorSpace!=3) { 
 				if (($this->PDFA && !$this->PDFAauto) || ($this->PDFX && !$this->PDFXauto)) { $this->PDFAXwarnings[] = "CMYK color with transparency specified '".$color."' (converted to RGB without transparency)"; }
-				$c = $this->cmyk2rgb($c); 
+				$c = Color::cmyk2rgb($c); 
 				$c = array(3, $c[1], $c[2], $c[3]);
 			}
 			else if ($this->PDFX || ($this->PDFA && $this->restrictColorSpace==3)) { 
 				if (($this->PDFA && !$this->PDFAauto) || ($this->PDFX && !$this->PDFXauto)) { $this->PDFAXwarnings[] = "CMYK color with transparency specified '".$color."' (converted to CMYK without transparency)"; }
-				$c = $this->cmyk2rgb($c); 
+				$c = Color::cmyk2rgb($c); 
 				$c = array(3, $c[1], $c[2], $c[3]);
 			}
-			else if ($this->restrictColorSpace==1) { $c = $this->cmyk2gray($c); }
-			else if ($this->restrictColorSpace==2) { $c = $this->cmyk2rgb($c); }
+			else if ($this->restrictColorSpace==1) { $c = Color::cmyk2gray($c); }
+			else if ($this->restrictColorSpace==2) { $c = Color::cmyk2rgb($c); }
 		}
 	}
 	// mPDF 5.3.74
@@ -31863,128 +31712,6 @@ function ConvertColor($color="#000000"){
 		$cstr = pack("a1ccccc", $c[0], ($c[1] & 0xFF), ($c[2] & 0xFF), ($c[3] & 0xFF), ($c[4] & 0xFF), ($c[5] & 0xFF) ); 
 	}
 	return $cstr;
-}
-
-function rgb2gray($c) {
-	// mPDF 5.3.74
-	if (isset($c[4])) { return array(1,(($c[1] * .21) + ($c[2] * .71) + ($c[3] * .07)), ord(1), $c[4]); }
-	else { return array(1,(($c[1] * .21) + ($c[2] * .71) + ($c[3] * .07))); }
-}
-
-function cmyk2gray($c) {
-	$rgb = $this->cmyk2rgb($c);
-	return $this->rgb2gray($rgb);
-}
-
-function rgb2cmyk($c) {
-	$cyan = 1 - ($c[1] / 255);
-	$magenta = 1 - ($c[2] / 255);
-	$yellow = 1 - ($c[3] / 255);
-	$min = min($cyan, $magenta, $yellow);
-
-	if ($min == 1) {
-		if ($c[0]==5) { return array (6,100,100,100,100, $c[4]); }
-		else { return array (4,100,100,100,100); }
-		// For K-Black
-		//if ($c[0]==5) { return array (6,0,0,0,100, $c[4]); }
-		//else { return array (4,0,0,0,100); }
-	}
-	$K = $min;
-	$black = 1 - $K;
-	if ($c[0]==5) { return array (6,($cyan-$K)*100/$black, ($magenta-$K)*100/$black, ($yellow-$K)*100/$black, $K*100, $c[4]); }
-	else { return array (4,($cyan-$K)*100/$black, ($magenta-$K)*100/$black, ($yellow-$K)*100/$black, $K*100); }
-}
-
-
-function cmyk2rgb($c) {
-	$rgb = array();
-	$colors = 255 - ($c[4]*2.55);
-	$rgb[0] = intval($colors * (255 - ($c[1]*2.55))/255);
-	$rgb[1] = intval($colors * (255 - ($c[2]*2.55))/255);
-	$rgb[2] = intval($colors * (255 - ($c[3]*2.55))/255);
-	if ($c[0]==6) { return array (5,$rgb[0],$rgb[1],$rgb[2], $c[5]); }
-	else { return array (3,$rgb[0],$rgb[1],$rgb[2]); }
-}
-
-function rgb2hsl($var_r, $var_g, $var_b) {
-    $var_min = min($var_r,$var_g,$var_b);
-    $var_max = max($var_r,$var_g,$var_b);
-    $del_max = $var_max - $var_min;
-    $l = ($var_max + $var_min) / 2;
-    if ($del_max == 0) {
-            $h = 0;
-            $s = 0;
-    }
-    else {
-            if ($l < 0.5) { $s = $del_max / ($var_max + $var_min); }
-            else { $s = $del_max / (2 - $var_max - $var_min); }
-            $del_r = ((($var_max - $var_r) / 6) + ($del_max / 2)) / $del_max;
-            $del_g = ((($var_max - $var_g) / 6) + ($del_max / 2)) / $del_max;
-            $del_b = ((($var_max - $var_b) / 6) + ($del_max / 2)) / $del_max;
-            if ($var_r == $var_max) { $h = $del_b - $del_g; }
-            elseif ($var_g == $var_max)  { $h = (1 / 3) + $del_r - $del_b; }
-            elseif ($var_b == $var_max)  { $h = (2 / 3) + $del_g - $del_r; };
-            if ($h < 0) { $h += 1; }
-            if ($h > 1) { $h -= 1; }
-    }
-    return array($h,$s,$l);
-}
-
-
-function hsl2rgb($h2,$s2,$l2) {
-	// Input is HSL value of complementary colour, held in $h2, $s, $l as fractions of 1
-	// Output is RGB in normal 255 255 255 format, held in $r, $g, $b
-	// Hue is converted using function hue_2_rgb, shown at the end of this code
-	if ($s2 == 0) {
-		$r = $l2 * 255;
-		$g = $l2 * 255;
-		$b = $l2 * 255;
-	}
-	else {
-		if ($l2 < 0.5) { $var_2 = $l2 * (1 + $s2); }
-		else { $var_2 = ($l2 + $s2) - ($s2 * $l2); }
-		$var_1 = 2 * $l2 - $var_2;
-		$r = round(255 * $this->hue_2_rgb($var_1,$var_2,$h2 + (1 / 3)));
-		$g = round(255 * $this->hue_2_rgb($var_1,$var_2,$h2));
-		$b = round(255 * $this->hue_2_rgb($var_1,$var_2,$h2 - (1 / 3)));
-	}
-	return array($r,$g,$b);
-}
-
-function hue_2_rgb($v1,$v2,$vh) {
-	// Function to convert hue to RGB, called from above
-	if ($vh < 0) { $vh += 1; };
-	if ($vh > 1) { $vh -= 1; };
-	if ((6 * $vh) < 1) { return ($v1 + ($v2 - $v1) * 6 * $vh); };
-	if ((2 * $vh) < 1) { return ($v2); };
-	if ((3 * $vh) < 2) { return ($v1 + ($v2 - $v1) * ((2 / 3 - $vh) * 6)); };
-	return ($v1);
-}
-
-function _invertColor($cor) {
-	if ($cor[0]==3 || $cor[0]==5) {	// RGB
-		return array(3, (255-$cor[1]), (255-$cor[2]), (255-$cor[3]));
-	}
-	else if ($cor[0]==4 || $cor[0]==6) {	// CMYK
-		return array(4, (100-$cor[1]), (100-$cor[2]), (100-$cor[3]), (100-$cor[4]));
-	}
-	else if ($cor[0]==1) {	// Grayscale
-		return array(1, (255-$cor[1]));
-	}	
-	// Cannot cope with non-RGB colors at present
-	die('Error in _invertColor - trying to invert non-RGB color');
-}
-
-function _colAtoString($cor) {
-	$s = '';
-	// mPDF 5.3.74
-	if ($cor{0}==1) $s = 'rgb('.ord($cor{1}).','.ord($cor{1}).','.ord($cor{1}).')';
-	else if ($cor{0}==2) $s = 'spot('.ord($cor{1}).','.ord($cor{2}).')';		// SPOT COLOR
-	else if ($cor{0}==3) $s = 'rgb('.ord($cor{1}).','.ord($cor{2}).','.ord($cor{3}).')';
-	else if ($cor{0}==4) $s = 'cmyk('.ord($cor{1}).','.ord($cor{2}).','.ord($cor{3}).','.ord($cor{4}).')';
-	else if ($cor{0}==5) $s = 'rgba('.ord($cor{1}).','.ord($cor{2}).','.ord($cor{3}).','.sprintf('%0.2F',ord($cor{4})/100).')';
-	else if ($cor{0}==6) $s = 'cmyka('.ord($cor{1}).','.ord($cor{2}).','.ord($cor{3}).','.ord($cor{4}).','.sprintf('%0.2F',ord($cor{5})/100).')';
-	return $s;
 }
 
 function ConvertSize($size=5,$maxsize=0,$fontsize=false,$usefontsize=true){
@@ -32050,19 +31777,6 @@ function ConvertSize($size=5,$maxsize=0,$fontsize=false,$usefontsize=true){
   else $size *= (25.4/$this->dpi); //nothing == px
   
   return $size;
-}
-
-
-function lesser_entity_decode($html) {
-  //supports the most used entity codes (only does ascii safe characters)
- 	//$html = str_replace("&nbsp;"," ",$html);	// mPDF 5.3.59
- 	$html = str_replace("&lt;","<",$html);
- 	$html = str_replace("&gt;",">",$html);
-
- 	$html = str_replace("&apos;","'",$html);
- 	$html = str_replace("&quot;",'"',$html);
- 	$html = str_replace("&amp;","&",$html);
-	return $html;
 }
 
 function AdjustHTML($html, $tabSpaces=8) {	// mPDF 5.3.99
@@ -32206,7 +31920,7 @@ function dec2other($num, $cp) {
 	$nstr = (string) $num;
 	$rnum = '';
 	for ($i=0;$i<strlen($nstr);$i++) { 
-		if ($this->_charDefined($this->CurrentFont['cw'],$cp+intval($nstr[$i]))) { // contains arabic-indic numbers
+		if (Text::charDefined($this->CurrentFont['cw'],$cp+intval($nstr[$i]))) { // contains arabic-indic numbers
 			$rnum .= code2utf($cp+intval($nstr[$i]));
 		}
 		else { $rnum .= $nstr[$i]; }
@@ -32321,14 +32035,6 @@ function SetImportUse() {
 }
 
 // from mPDFI
-function hex2str($hex) {
-	return pack("H*", str_replace(array("\r","\n"," "),"", $hex));
-}
-    
-function str2hex($str) {
-	return current(unpack("H*",$str));
-}
-
     
 function pdf_write_value(&$value) {
 	switch ($value[0]) {
@@ -32376,7 +32082,7 @@ function pdf_write_value(&$value) {
 		case PDF_TYPE_STRING :
 			if ($this->encrypted) {
 				$value[1] = $this->_RC4($this->_objectkey($this->_current_obj_id), $value[1]);
-				$value[1] = $this->_escape($value[1]);
+				$value[1] = Text::escape($value[1]);
 			} 
 			// A string.
 			$this->_out('('.$value[1].')');
@@ -32397,10 +32103,10 @@ function pdf_write_value(&$value) {
 
 		case PDF_TYPE_HEX :
 			if ($this->encrypted) {
-				$value[1] = $this->hex2str($value[1]);
+				$value[1] = pack("H*", str_replace(array("\r","\n"," "),"", $value[1]));
 				$value[1] = $this->_RC4($this->_objectkey($this->_current_obj_id), $value[1]);
 				// remake hexstring of encrypted string
-				$value[1] = $this->str2hex($value[1]);
+				$value[1] = current(unpack("H*",$value[1]));
 			}
 			$this->_out("<".$value[1].">");
 			break;
@@ -32428,15 +32134,15 @@ function OverWrite($file_in, $search, $replacement, $dest="D", $file_out="mpdf" 
 	if (!$this->onlyCoreFonts && !$this->usingCoreFont) {	
 	  foreach($search AS $k=>$val) {
 		$search[$k] = $this->UTF8ToUTF16BE($search[$k] , false);
-		$search[$k] = $this->_escape($search[$k]); 
+		$search[$k] = Text::escape($search[$k]); 
 		$replacement[$k] = $this->UTF8ToUTF16BE($replacement[$k], false);
-		$replacement[$k] = $this->_escape($replacement[$k]); 
+		$replacement[$k] = Text::escape($replacement[$k]); 
 	  }
 	}
 	else {
 	  foreach($replacement AS $k=>$val) {
 		$replacement[$k] = mb_convert_encoding($replacement[$k],$this->mb_enc,'utf-8'); 
-		$replacement[$k] = $this->_escape($replacement[$k]); 
+		$replacement[$k] = Text::escape($replacement[$k]); 
 	  }
 	}
 

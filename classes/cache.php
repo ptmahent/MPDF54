@@ -2,7 +2,6 @@
 
 require('rb.php');
 R::setup('sqlite:'._MPDF_PATH.'pdfcache.sq3');
-R::debug();
 
 class Cache {
 
