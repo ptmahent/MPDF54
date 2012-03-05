@@ -37,10 +37,7 @@ if (!defined('_MPDF_URI')) define('_MPDF_URI',_MPDF_PATH);
 
 require_once(_MPDF_PATH.'includes/functions.php');
 require_once(_MPDF_PATH.'config_cp.php');
-
-
-require('rb.php');
-R::setup('sqlite:'._MPDF_PATH.'pdfcache.sq3');
+require_once(_MPDF_PATH.'classes/cache.php');
 
 
 if (!defined('_JPGRAPH_PATH')) define("_JPGRAPH_PATH", _MPDF_PATH.'jpgraph/'); 
@@ -53,7 +50,7 @@ if (!defined('_MPDF_TTFONTDATAPATH')) { define('_MPDF_TTFONTDATAPATH',_MPDF_PATH
 $errorlevel=error_reporting();
 $errorlevel=error_reporting($errorlevel & ~E_NOTICE);
 
-//error_reporting(E_ALL);
+error_reporting(E_ALL);
 
 // mPDF 5.3.76
 if(function_exists("date_default_timezone_set")) {
@@ -1777,9 +1774,13 @@ function Close() {
 
 	//Close page
 	$this->_endpage();
-
+	
 	//Close document
 	$this->_enddoc();
+	
+	// Clear cache
+	Cache::clear();
+	
 }
 
 /*-- BACKGROUNDS --*/
@@ -4278,108 +4279,12 @@ function Write($h,$txt,$currentx=0,$link='',$directionality='ltr',$align='') {
 
 /*-- HTML-CSS --*/
 function saveInlineProperties() {
-	$props = R::dispense('inline');
-	
-	$props->family = $this->FontFamily;
-	$props->style = $this->FontStyle;
-	$props->sizept = $this->FontSizePt;
-	$props->size = $this->FontSize;
-	$props->href = $this->HREF; 
-	$props->underline = $this->U; 
-	$props->smcaps = $this->S;
-	$props->strike = $this->strike;
-	$props->textshadow = serialize($this->textshadow);	// mPDF 5.3.A2
-	$props->sup = $this->SUP; 
-	$props->sub = $this->SUB; 
-	$props->linewidth = $this->LineWidth;
-	$props->drawcolor = $this->DrawColor;
-	$props->is_outline = $this->outline_on;
-	$props->outlineparam = serialize($this->outlineparam);
-	$props->toupper = $this->toupper;
-	$props->tolower = $this->tolower;
-	$props->capitalize = $this->capitalize;
-	$props->fontkerning = $this->kerning;
-	$props->lspacingcss = $this->lSpacingCSS;
-	$props->wspacingcss = $this->wSpacingCSS;
-	$props->i = $this->I;
-	$props->b = $this->B;
-	$props->colorarray = $this->colorarray;
-	$props->bgcolorarray = $this->spanbgcolorarray;
-	$props->border = serialize($this->spanborddet);	// mPDF 5.3.61
-	$props->color = $this->TextColor; 
-	$props->bgcolor = $this->FillColor;
-	$props->lang = $this->currentLang;
-	$props->display_off = $this->inlineDisplayOff;
-	$id = R::store($props);
+	$id = Cache::saveInlineProperties($this);
 	return $id;
 }
 
 function restoreInlineProperties($saved) {
-	$props = R::load('inline', $saved);
-	
-	$FontFamily = $props->family;
-	$this->FontStyle = $props->style;
-	$this->FontSizePt = $props->sizept;
-	$this->FontSize = $props->size;
-
-	$this->currentLang = $props->lang;
-	if ($this->useLang && !$this->usingCoreFont) {
-	  if ($this->currentLang != $this->default_lang && ((strlen($this->currentLang) == 5 && $this->currentLang != 'UTF-8') || strlen($this->currentLang ) == 2)) { 
-		list ($coreSuitable,$mpdf_pdf_unifonts) = GetLangOpts($this->currentLang, $this->useAdobeCJK);
-		if ($mpdf_pdf_unifonts) { $this->RestrictUnicodeFonts($mpdf_pdf_unifonts); }
-		else { $this->RestrictUnicodeFonts($this->default_available_fonts ); }
-	  }
-	  else { 
-		$this->RestrictUnicodeFonts($this->default_available_fonts );
-	  } 
-	}
-
-	$this->ColorFlag = ($this->FillColor != $this->TextColor); //Restore ColorFlag as well
-
-	$this->HREF = $props->href;
-	$this->U = $props->underline;
-	$this->S = $props->smcaps;
-	$this->strike = $props->strike;
-	$this->textshadow = unserialize($props->textshadow);	// mPDF 5.3.A2
-	$this->SUP = $props->sup;
-	$this->SUB = $props->sub;
-	$this->LineWidth = $props->linewidth;
-	$this->DrawColor = $props->drawcolor;
-	$this->outline_on = $props->is_outline;
-	$this->outlineparam = unserialize($props->outlineparam);
-	$this->inlineDisplayOff = $props->display_off;
-
-	$this->toupper = $props->toupper;
-	$this->tolower = $props->tolower;
-	$this->capitalize = $props->capitalize;
-	$this->kerning = $props->fontkerning;
-	$this->lSpacingCSS = $props->lspacingcss;
-	if (($this->lSpacingCSS || $this->lSpacingCSS==='0') && strtoupper($this->lSpacingCSS) != 'NORMAL') {
-		$this->fixedlSpacing = $this->ConvertSize($this->lSpacingCSS,$this->FontSize);
-	}
-	else { $this->fixedlSpacing = false; }
-	$this->wSpacingCSS = $props->wspacingcss;
-	if ($this->wSpacingCSS && strtoupper($this->wSpacingCSS) != 'NORMAL') { 
-		$this->minwSpacing = $this->ConvertSize($this->wSpacingCSS,$this->FontSize);
-	}
-	else { $this->minwSpacing = 0; }
-  
-	$this->SetFont($FontFamily, $props->style.($this->U ? 'U' : '').($this->S ? 'S' : ''),$props->sizept,false);
-
-	$this->currentfontstyle = $props->style.($this->U ? 'U' : '').($this->S ? 'S' : '');
-	$this->currentfontsize = $props->sizept;
-	$this->SetStylesArray(array('S'=>$this->S, 'U'=>$this->U, 'B'=>$props->b, 'I'=>$props->i));
-
-	$this->TextColor = $props->color;
-	$this->FillColor = $props->bgcolor;
-	$this->colorarray = $props->colorarray;
-	$cor = $this->colorarray;
-	if ($cor) $this->SetTColor($cor);
-	$this->spanbgcolorarray = $props->bgcolorarray;
-	$cor = $this->spanbgcolorarray;
-	if ($cor) $this->SetFColor($cor);
-	$this->spanborddet = unserialize($props->border);	// mPDF 5.3.61
-	
+	Cache::restoreInlineProperties($this, $saved);
 }
 
 
@@ -23672,6 +23577,7 @@ function _uncacheCell($ptr, $file, $fh) {
 	if ($tempfh) { fclose($fh); }
 	return ($c);
 }
+
 // mPDF 5.3.79
 function read_short(&$fh) {
 		$s = fread($fh,2);

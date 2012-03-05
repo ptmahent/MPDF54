@@ -3,7 +3,7 @@
 // mPDF 5.4
 // Using disk to cache table data can reduce memory usage dramatically, but at a cost of increased 
 // executon time and disk access (read and write)
-$this->cacheTables = false;
+$this->cacheTables = true;
 
 // Set an optional array to specify appearance of Bookmarks (by level)
 // Default values are Black and normal style
