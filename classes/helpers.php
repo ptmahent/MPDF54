@@ -271,6 +271,156 @@ class Text
 						   array(' ', '<', '>', "'", '"', '&'),
 						   $html);
 	}
+	
+	/**
+	 * is_utf8
+	 */
+	public static function is_utf8(&$string)
+	{
+		$str = mb_convert_encoding(mb_convert_encoding($string, 'UTF-32', 'UTF-8'),
+								   'UTF-8', 'UTF-32');
+		return ($string === $str);
+	}
+
+
+	/**
+	 * reverseLetters
+	 * @since: mPDF 4.0
+	 */
+	public static function reverseLetters($str)
+	{
+		$str = strtr($str, '{}[]()', '}{][)(');
+		return join("", array_reverse(
+        	preg_split("//u", $str)
+    	)); 
+	}
+	
+	
+	/**
+	 * purify_utf8_text
+	 * Make sure UTF-8 string of characters
+	 */
+	public static function purify_utf8_text($txt)
+	{
+		if (!self::is_utf8($txt)) {
+			new Error('Text contains invalid UTF-8 character(s)');
+		}
+		return str_replace("\r", '', $txt);
+	}
+	
+	/**
+	 * purify_utf8
+	 * Checks string is valid UTF-8 encoded
+	 * converts html_entities > ASCII 127 to UTF-8
+	 * Only exception - leaves low ASCII entities e.g. &lt; &amp; etc.
+	 * Leaves in particular &lt; to distinguish from tag marker
+	 */
+	public static function purify_utf8($html, $lo=true)
+	{
+		$html = self::purify_utf8_text($html);
+		$html = self::substituteHiEntities($html);
+		return self::strcode2utf($html, $lo);
+	}
+	
+	
+	static function utf8_entity_decode($entity)
+	{
+		$convmap = array(0x0, 0x10000, 0, 0xfffff);
+		return mb_decode_numericentity($entity, $convmap, 'UTF-8');
+	}
+
+
+	/**
+	 * strcode2utf
+	 * Converts all &#nnn; or &#xHHH; to UTF-8 multibyte
+	 * If $lo==true then includes ASCII < 128
+	 */
+	public static function strcode2utf($str)
+	{
+		//decode decimal HTML entities added by web browser
+  		$str = preg_replace('/&#\d{2,5};/ue', "Text::utf8_entity_decode('$0')", $str);
+  		//decode hex HTML entities added by web browser
+  		return preg_replace('/&#x([a-fA-F0-9]{2,8});/ue', "Text::utf8_entity_decode('&#'.hexdec('$1').';')", $str);
+	}
+
+
+	/**
+	 * substituteHiEntities
+	 * Converts html_entities > ASCII 127 to unicode
+	 * Leaves in particular &lt; to distinguish from tag marker
+	 *
+	 * @param	string	$html	String to convert
+	 */
+	public static function substituteHiEntities($html)
+	{
+		return str_replace(array('&nbsp;','&iexcl;','&cent;','&pound;','&curren;','&yen;',
+								 '&brvbar;','&sect;','&uml;','&copy;','&ordf;','&laquo;','&not;',
+								 '&shy;','&reg;','&macr;','&deg;','&plusmn;','&sup2;','&sup3;',
+								 '&acute;','&micro;','&para;','&middot;','&cedil;','&sup1;',
+								 '&ordm;','&raquo;','&frac14;','&frac12;','&frac34;','&iquest;',
+								 '&Agrave;','&Aacute;','&Acirc;','&Atilde;','&Auml;','&Aring;',
+								 '&AElig;','&Ccedil;','&Egrave;','&Eacute;','&Ecirc;','&Euml;',
+								 '&Igrave;','&Iacute;','&Icirc;','&Iuml;','&ETH;','&Ntilde;',
+								 '&Ograve;','&Oacute;','&Ocirc;','&Otilde;','&Ouml;','&times;',
+								 '&Oslash;','&Ugrave;','&Uacute;','&Ucirc;','&Uuml;','&Yacute;',
+								 '&THORN;','&szlig;','&agrave;','&aacute;','&acirc;','&atilde;',
+								 '&auml;','&aring;','&aelig;','&ccedil;','&egrave;','&eacute;',
+								 '&ecirc;','&euml;','&igrave;','&iacute;','&icirc;','&iuml;',
+								 '&eth;','&ntilde;','&ograve;','&oacute;','&ocirc;','&otilde;',
+								 '&ouml;','&divide;','&oslash;','&ugrave;','&uacute;','&ucirc;',
+								 '&uuml;','&yacute;','&thorn;','&yuml;','&OElig;','&oelig;',
+								 '&Scaron;','&scaron;','&Yuml;','&fnof;','&circ;','&tilde;',
+								 '&Alpha;','&Beta;','&Gamma;','&Delta;','&Epsilon;','&Zeta;',
+								 '&Eta;','&Theta;','&Iota;','&Kappa;','&Lambda;','&Mu;','&Nu;',
+								 '&Xi;','&Omicron;','&Pi;','&Rho;','&Sigma;','&Tau;','&Upsilon;',
+								 '&Phi;','&Chi;','&Psi;','&Omega;','&alpha;','&beta;','&gamma;',
+								 '&delta;','&epsilon;','&zeta;','&eta;','&theta;','&iota;',
+								 '&kappa;','&lambda;','&mu;','&nu;','&xi;','&omicron;','&pi;',
+								 '&rho;','&sigmaf;','&sigma;','&tau;','&upsilon;','&phi;','&chi;',
+								 '&psi;','&omega;','&thetasym;','&upsih;','&piv;','&ensp;','&emsp;',
+								 '&thinsp;','&zwnj;','&zwj;','&lrm;','&rlm;','&ndash;','&mdash;',
+								 '&lsquo;','&rsquo;','&sbquo;','&ldquo;','&rdquo;','&bdquo;',
+								 '&dagger;','&Dagger;','&bull;','&hellip;','&permil;','&prime;',
+								 '&Prime;','&lsaquo;','&rsaquo;','&oline;','&frasl;','&euro;',
+								 '&image;','&weierp;','&real;','&trade;','&alefsym;','&larr;',
+								 '&uarr;','&rarr;','&darr;','&harr;','&crarr;','&lArr;','&uArr;',
+								 '&rArr;','&dArr;','&hArr;','&forall;','&part;','&exist;','&empty;',
+								 '&nabla;','&isin;','&notin;','&ni;','&prod;','&sum;','&minus;',
+								 '&lowast;','&radic;','&prop;','&infin;','&ang;','&and;','&or;',
+								 '&cap;','&cup;','&int;','&there4;','&sim;','&cong;','&asymp;',
+								 '&ne;','&equiv;','&le;','&ge;','&sub;','&sup;','&nsub;','&sube;',
+								 '&supe;','&oplus;','&otimes;','&perp;','&sdot;','&lceil;',
+								 '&rceil;','&lfloor;','&rfloor;','&lang;','&rang;','&loz;',
+								 '&spades;','&clubs;','&hearts;','&diams;'),
+						   array(' ','¡','¢','£','¤','¥','¦','§','¨','©','ª','«','¬','­','®','¯',
+								 '°','±','²','³','´','µ','¶','·','¸','¹','º','»','¼','½','¾','¿',
+								 'À','Á','Â','Ã','Ä','Å','Æ','Ç','È','É','Ê','Ë','Ì','Í','Î','Ï',
+								 'Ð','Ñ','Ò','Ó','Ô','Õ','Ö','×','Ø','Ù','Ú','Û','Ü','Ý','Þ','ß',
+								 'à','á','â','ã','ä','å','æ','ç','è','é','ê','ë','ì','í','î','ï',
+								 'ð','ñ','ò','ó','ô','õ','ö','÷','ø','ù','ú','û','ü','ý','þ','ÿ',
+								 'Œ','œ','Š','š','Ÿ','ƒ','ˆ','˜','Α','Β','Γ','Δ','Ε','Ζ','Η','Θ',
+								 'Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω',
+								 'α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π',
+								 'ρ','ς','σ','τ','υ','φ','χ','ψ','ω','ϑ','ϒ','ϖ',' ',' ',' ','‌',
+								 '‍','‎','‏','–','—','‘','’','‚','“','”','„','†','‡','•','…','‰',
+								 '′','″','‹','›','‾','⁄','€','ℑ','℘','ℜ','™','ℵ','←','↑','→','↓',
+								 '↔','↵','⇐','⇑','⇒','⇓','⇔','∀','∂','∃','∅','∇','∈','∉','∋','∏',
+								 '∑','−','∗','√','∝','∞','∠','∧','∨','∩','∪','∫','∴','∼','≅','≈',
+								 '≠','≡','≤','≥','⊂','⊃','⊄','⊆','⊇','⊕','⊗','⊥','⋅','⌈','⌉','⌊',
+								 '⌋','〈','〉','◊','♠','♣','♥','♦'), $html);
+	}
+	
+	/**
+	 * all_entities_to_utf8
+	 * Converts txt_entities > ASCII 127 to UTF-8
+	 * Leaves in particular &lt; to distinguish from tag marker
+	 */
+	public static function all_entities_to_utf8(&$txt)
+	{
+		$txt = self::substituteHiEntities($txt);
+		$txt = self::lesser_entity_decode($txt);
+	}
+	
 }
 
 class Numeric
@@ -340,6 +490,50 @@ class Numeric
 		//nothing == px // mPDF 4.4.003
 		return $size * 25.4 / $dpi;
 	}
+	
+	/**
+	 * toAlpha
+	 */
+	static function toAlpha($val, $toupper = true)
+	{
+		if ($val < 1 || $val > 18278) {
+			return '?'; //supports 'only' up to 18278
+		}
+		$anum = '';
+		while ($val >= 1) {
+			$val = $val - 1;
+			$anum = chr(($val % 26) + 65) . $anum;
+			$val = $val / 26;
+		}
+		return $toupper ? $anum : strtolower($anum);
+	}
+
+
+	/**
+	 * toRoman
+	 */
+	static function toRoman($val, $toupper = true)
+	{
+		if ($val < 1  || $val > 4999) {
+			return '?'; //supports 'only' up to 4999
+		}
+		
+		$val = (int)$val;
+		$result = '';
+
+		$lookup = array('M' => 1000, 'CM' => 900, 'D' => 500, 'CD' => 400,
+						'C' => 100, 'XC' => 90, 'L' => 50, 'XL' => 40,
+						'X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
+
+		foreach ($lookup as $roman => $value) {
+			$matches = (int)($val / $value);
+			$result .= str_repeat($roman, $matches);
+			$val = $val % $value;
+		}
+ 
+		return $toupper ? $result : strtolower($result);
+	}
+
 	
 	/**
 	 * pageFormat

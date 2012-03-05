@@ -1202,8 +1202,6 @@ function mPDF($mode='',$format='A4',$default_font_size=0,$default_font='',$mgl=1
 	$this->fontlist=array("ctimes","ccourier","chelvetica","csymbol","czapfdingbats");
 
 	// Substitutions
-	$this->setHiEntitySubstitutions();
-
 	if ($this->onlyCoreFonts) {
 		$this->useSubstitutions = true;
 		$this->SetSubstitutions();
@@ -2762,8 +2760,6 @@ function AddFont($family,$style='') {
 	if ($this->useKerning && !$haskerninfo) { $regenerate = true; }
 
 	if (!isset($name) || $originalsize != $ttfstat['size'] || $regenerate) {
-		$mqr=$this->_getMQR();
-		if ($mqr) { set_magic_quotes_runtime(0); }
 		if (!class_exists('TTFontFile', false)) { include(_MPDF_PATH .'classes/ttfontsuni.php'); }
 		$ttf = new TTFontFile();
 		$ttf->getMetrics($ttffile, $TTCfontID, $this->debugfonts, $BMPonly, $this->useKerning);
@@ -2826,7 +2822,6 @@ function AddFont($family,$style='') {
 		}
 		else if ($this->debugfonts) { $this->Error('Cannot write to the font caching directory - '._MPDF_TTFONTDATAPATH); }
 		unset($ttf);
-		if ($mqr) { set_magic_quotes_runtime($mqr); }
 	}
 	else {
 		$cw = @file_get_contents(_MPDF_TTFONTDATAPATH.$fontkey.'.cw.dat'); 
@@ -3234,7 +3229,7 @@ function Text($x,$y,$txt) {
 /*-- DIRECTW --*/
 function WriteText($x,$y,$txt) {
 	// Output a string using Text() but does encoding and text reversing of RTL
-	$txt = $this->purify_utf8_text($txt);
+	$txt = Text::purify_utf8_text($txt);
 	if ($this->text_input_as_HTML) {
 		$txt = $this->all_entities_to_utf8($txt);
 	}
@@ -3249,7 +3244,7 @@ function WriteText($x,$y,$txt) {
 
 function WriteCell($w,$h=0,$txt='',$border=0,$ln=0,$align='',$fill=0,$link='', $currentx=0) {
 	//Output a cell using Cell() but does encoding and text reversing of RTL
-	$txt = $this->purify_utf8_text($txt);
+	$txt = Text::purify_utf8_text($txt);
 	if ($this->text_input_as_HTML) {
 		$txt = $this->all_entities_to_utf8($txt);
 	}
@@ -3949,7 +3944,7 @@ function MultiCell($w,$h,$txt,$border=0,$align='',$fill=0,$link='',$directionali
 {
 	// Parameter (pre-)encoded - When called internally from ToC or textarea: mb_encoding already done - but not reverse RTL/Indic
 	if (!$encoded) {
-		$txt = $this->purify_utf8_text($txt);
+		$txt = Text::purify_utf8_text($txt);
 		if ($this->text_input_as_HTML) {
 			$txt = $this->all_entities_to_utf8($txt);
 		}
@@ -7668,8 +7663,6 @@ function Annotation($text, $x=0, $y=0, $icon='Note', $author='', $subject='', $o
 
 function _putfonts() {
 	$nf=$this->n;
-	$mqr=$this->_getMQR();
-	if ($mqr) { set_magic_quotes_runtime(0); }
 	foreach($this->FontFiles as $fontkey=>$info) {
 	   // TrueType embedded
 	   if (isset($info['type']) && $info['type']=='TTF' && !$info['sip'] && !$info['smp']) {
@@ -8068,7 +8061,6 @@ function _putfonts() {
 		} 
 		else { $this->Error('Unsupported font type: '.$type.' ('.$name.')'); }
 	}
-	if ($mqr) { set_magic_quotes_runtime($mqr); }
 }
 
 
@@ -9070,8 +9062,6 @@ function _getImage(&$file, $firsttime=true, $allowvector=true, $orig_srcpath=fal
 	if (empty($data)) {
 		$type = '';
 		$data = '';
-		$mqr=$this->_getMQR();
-		if ($mqr) { set_magic_quotes_runtime(0); }
 
  		if ($orig_srcpath && $this->basepathIsLocal && $check = @fopen($orig_srcpath,"rb")) {
 			fclose($check); 
@@ -9093,7 +9083,6 @@ function _getImage(&$file, $firsttime=true, $allowvector=true, $orig_srcpath=fal
 			if ($data) { $type = $this->_imageTypeFromString($data); }
 		}
 
-		if ($mqr) { set_magic_quotes_runtime($mqr); }
 	}
 	if (!$data) { return $this->_imageError($file, $firsttime, 'Could not find image file'); }
 	if (empty($type)) { $type = $this->_imageTypeFromString($data); }	
@@ -9980,7 +9969,7 @@ function watermark( $texte, $angle=45, $fontsize=96, $alpha=0.2 ) {
 	if ($this->PDFA || $this->PDFX) { $this->Error('PDFA and PDFX do not permit transparency, so mPDF does not allow Watermarks!'); }
 	if (!$this->watermark_font) { $this->watermark_font = $this->default_font; }
       $this->SetFont( $this->watermark_font, "B", $fontsize, false );	// Don't output
-	$texte= $this->purify_utf8_text($texte);
+	$texte= Text::purify_utf8_text($texte);
 	if ($this->text_input_as_HTML) {
 		$texte= $this->all_entities_to_utf8($texte);
 	}
@@ -10591,10 +10580,10 @@ function docPageNum($num = 0, $extras = false) {
 			$ppgno -= $v;
 		}
 	}
-	if ($type=='A') { $ppgno = $this->dec2alpha($ppgno,true); }
-	else if ($type=='a') { $ppgno = $this->dec2alpha($ppgno,false);}
-	else if ($type=='I') { $ppgno = $this->dec2roman($ppgno,true); }
-	else if ($type=='i') { $ppgno = $this->dec2roman($ppgno,false); }
+	if ($type=='A') { $ppgno = Numeric::toAlpha($ppgno,true); }
+	else if ($type=='a') { $ppgno = Numeric::toAlpha($ppgno,false);}
+	else if ($type=='I') { $ppgno = Numeric::toRoman($ppgno,true); }
+	else if ($type=='i') { $ppgno = Numeric::toRoman($ppgno,false); }
 	if ($extras) { $ppgno = $this->pagenumPrefix . $ppgno . $this->pagenumSuffix; }
 	return $ppgno;
 }
@@ -10745,7 +10734,7 @@ function Header($content='') {
 		$this->x = $headerlmargin ;
 		$this->y = $this->margin_header - $yadj ;
 
-		$hd = $this->purify_utf8_text($hd);
+		$hd = Text::purify_utf8_text($hd);
 		if ($this->text_input_as_HTML) {
 			$hd = $this->all_entities_to_utf8($hd);
 		}
@@ -11885,7 +11874,7 @@ function Footer() {
 		$this->SetFont($hff,$hfst,$hfsz,true,true);
 		$this->x = $headerlmargin ;
 		$this->y = $this->h - $this->margin_footer - ($maxfontheight/_MPDFK);
-		$hd = $this->purify_utf8_text($hd);
+		$hd = Text::purify_utf8_text($hd);
 		if ($this->text_input_as_HTML) {
 			$hd = $this->all_entities_to_utf8($hd);
 		}
@@ -12148,7 +12137,7 @@ function WriteHTML($html,$sub=0,$init=true,$close=true) {
 		}
 	}
 
-	$html = $this->purify_utf8($html,false);
+	$html = $this->purify_utf8($html);
 	if ($init) {
 		$this->blklvl = 0;
 		$this->lastblocklevelchange = 0;
@@ -12347,7 +12336,7 @@ function WriteHTML($html,$sub=0,$init=true,$close=true) {
 			if ($this->inFixedPosBlock) { $this->fixedPosBlock .= $e; continue; }	// *CSS-POSITION*
 			if (strlen($e) == 0) { continue; }
 
-			$e = strcode2utf($e);
+			$e = Text::strcode2utf($e);
 			$e = Text::lesser_entity_decode($e);
 
 			if ($this->usingCoreFont) { 
@@ -16464,7 +16453,7 @@ function OpenTag($tag,$attr)
 	}
 	// mPDF 5.3.46
 	if(isset($attr['VALUE'])) { 
-		$attr['VALUE'] = strcode2utf($attr['VALUE']);
+		$attr['VALUE'] = Text::strcode2utf($attr['VALUE']);
 		$attr['VALUE'] = Text::lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
 		if ($this->onlyCoreFonts)
 			$attr['VALUE'] = mb_convert_encoding($attr['VALUE'], $this->mb_enc,'UTF-8'); 
@@ -16582,7 +16571,7 @@ function OpenTag($tag,$attr)
 	else if(isset($attr['ALT'])) { $objattr['title'] = $attr['ALT']; }
 	// mPDF 5.3.46
 	else $objattr['title'] = '';
-	$objattr['title'] = strcode2utf($objattr['title']);
+	$objattr['title'] = Text::strcode2utf($objattr['title']);
 	$objattr['title'] = Text::lesser_entity_decode($objattr['title']);	// mPDF 5.3.58 
 	if ($this->onlyCoreFonts)
 		$objattr['title'] = mb_convert_encoding($objattr['title'], $this->mb_enc,'UTF-8'); 
@@ -16591,7 +16580,7 @@ function OpenTag($tag,$attr)
 	}
 	// mPDF 5.3.46
 	if(isset($attr['VALUE'])) { 
-		$attr['VALUE'] = strcode2utf($attr['VALUE']);
+		$attr['VALUE'] = Text::strcode2utf($attr['VALUE']);
 		$attr['VALUE'] = Text::lesser_entity_decode($attr['VALUE']);	// mPDF 5.3.58 
 		if ($this->onlyCoreFonts)
 			$attr['VALUE'] = mb_convert_encoding($attr['VALUE'], $this->mb_enc,'UTF-8'); 
@@ -17159,13 +17148,13 @@ function OpenTag($tag,$attr)
 		}
 		if (isset($attr['R'])) { $objattr['r']=$this->ConvertSize($attr['R'],$this->blk[$this->blklvl]['inner_width'],$this->FontSize,false); }
 		if(isset($attr['TOP-TEXT'])) { 
-			$objattr['top-text'] = strcode2utf($attr['TOP-TEXT']);
+			$objattr['top-text'] = Text::strcode2utf($attr['TOP-TEXT']);
 			$objattr['top-text'] = Text::lesser_entity_decode($objattr['top-text']);
 			if ($this->onlyCoreFonts)
 				$objattr['top-text'] = mb_convert_encoding($objattr['top-text'], $this->mb_enc,'UTF-8'); 
 		}
 		if(isset($attr['BOTTOM-TEXT'])) { 
-			$objattr['bottom-text'] = strcode2utf($attr['BOTTOM-TEXT']);
+			$objattr['bottom-text'] = Text::strcode2utf($attr['BOTTOM-TEXT']);
 			$objattr['bottom-text'] = Text::lesser_entity_decode($objattr['bottom-text']);
 			if ($this->onlyCoreFonts)
 				$objattr['bottom-text'] = mb_convert_encoding($objattr['bottom-text'], $this->mb_enc,'UTF-8'); 
@@ -18335,16 +18324,16 @@ function OpenTag($tag,$attr)
 		$this->listnum++;
 		switch($this->listlist[$this->listlvl]['TYPE']) {
 		case 'A':
-			$blt = $this->dec2alpha($this->listnum,true).$this->list_number_suffix;
+			$blt = Numeric::toAlpha($this->listnum,true).$this->list_number_suffix;
 			break;
 		case 'a':
-			$blt = $this->dec2alpha($this->listnum,false).$this->list_number_suffix;
+			$blt = Numeric::toAlpha($this->listnum,false).$this->list_number_suffix;
 			break;
 		case 'I':
-			$blt = $this->dec2roman($this->listnum,true).$this->list_number_suffix;
+			$blt = Numeric::toRoman($this->listnum,true).$this->list_number_suffix;
 			break;
 		case 'i':
-			$blt = $this->dec2roman($this->listnum,false).$this->list_number_suffix;
+			$blt = Numeric::toRoman($this->listnum,false).$this->list_number_suffix;
 			break;
 		case '1':
 			$blt = $this->listnum.$this->list_number_suffix;
@@ -19807,21 +19796,21 @@ function printlistbuffer() {
   	        $blt_width = 0;
              break;
           case 'A':
-		  $anum = $this->dec2alpha($num,true);
-		  $maxnum = $this->dec2alpha($maxnum,true);
+		  $anum = Numeric::toAlpha($num,true);
+		  $maxnum = Numeric::toAlpha($maxnum,true);
 		  if ($this->listDir == 'rtl') { $list_item_marker = $this->list_number_suffix . $anum; }
 		  else { $list_item_marker = $anum . $this->list_number_suffix; }
   	        $blt_width = $this->GetStringWidth(str_repeat('W',strlen($maxnum)).$this->list_number_suffix);
              break;
           case 'a':
-              $anum = $this->dec2alpha($num,false);
-		  $maxnum = $this->dec2alpha($maxnum,false);
+              $anum = Numeric::toAlpha($num,false);
+		  $maxnum = Numeric::toAlpha($maxnum,false);
 		  if ($this->listDir == 'rtl') { $list_item_marker = $this->list_number_suffix . $anum; }
 		  else { $list_item_marker = $anum . $this->list_number_suffix; }
 		  $blt_width = $this->GetStringWidth(str_repeat('m',strlen($maxnum)).$this->list_number_suffix);
              break;
           case 'I':
-              $anum = $this->dec2roman($num,true);
+              $anum = Numeric::toRoman($num,true);
 		  if ($this->listDir == 'rtl') { $list_item_marker = $this->list_number_suffix . $anum; }
 		  else { $list_item_marker = $anum . $this->list_number_suffix; }
 		  
@@ -19837,11 +19826,11 @@ function printlistbuffer() {
 		  else if ($maxnum>6) { $bbit = 7; }
 		  else if ($maxnum>3) { $bbit = 4; }
 		  else { $bbit = $maxnum; }
-              $maxlnum = $this->dec2roman($bbit,true);
+              $maxlnum = Numeric::toRoman($bbit,true);
 	        $blt_width = $this->GetStringWidth($maxlnum.$this->list_number_suffix);
               break;
           case 'i':
-              $anum = $this->dec2roman($num,false);
+              $anum = Numeric::toRoman($num,false);
 		  if ($this->listDir == 'rtl') { $list_item_marker = $this->list_number_suffix . $anum; }
 		  else { $list_item_marker = $anum . $this->list_number_suffix; }
 		  
@@ -19857,7 +19846,7 @@ function printlistbuffer() {
 		  else if ($maxnum>6) { $bbit = 7; }
 		  else if ($maxnum>3) { $bbit = 4; }
 		  else { $bbit = $maxnum; }
-              $maxlnum = $this->dec2roman($bbit,false);
+              $maxlnum = Numeric::toRoman($bbit,false);
 		  
 	        $blt_width = $this->GetStringWidth($maxlnum.$this->list_number_suffix);
               break;
@@ -27908,7 +27897,7 @@ function _hexToString($hs) {
 // FROM class PDF_Bookmark
 
 function Bookmark($txt,$level=0,$y=0) {
-	$txt = $this->purify_utf8_text($txt);
+	$txt = Text::purify_utf8_text($txt);
 	if ($this->text_input_as_HTML) {
 		$txt = $this->all_entities_to_utf8($txt);
 	}
@@ -28121,7 +28110,7 @@ function TOCpagebreak($tocfont='', $tocfontsize='', $tocindent='', $TOCusePaging
 }
 
 function TOC_Entry($txt, $level=0, $toc_id=0) {
-		$txt = $this->purify_utf8_text($txt);
+		$txt = Text::purify_utf8_text($txt);
 		if ($this->text_input_as_HTML) {
 			$txt = $this->all_entities_to_utf8($txt);
 		}
@@ -28535,7 +28524,7 @@ function IndexEntry($txt, $xref='') {
 		return;
 	}
 	$txt = strip_tags($txt);
-	$txt = $this->purify_utf8_text($txt);
+	$txt = Text::purify_utf8_text($txt);
 	if ($this->text_input_as_HTML) {
 		$txt = $this->all_entities_to_utf8($txt);
 	}
@@ -28632,8 +28621,8 @@ function ReferenceSee($txta,$txtb) {
 function IndexEntrySee($txta,$txtb) {
 	$txta = strip_tags($txta);
 	$txtb = strip_tags($txtb);
-	$txta = $this->purify_utf8_text($txta);
-	$txtb = $this->purify_utf8_text($txtb);
+	$txta = Text::purify_utf8_text($txta);
+	$txtb = Text::purify_utf8_text($txtb);
 	if ($this->text_input_as_HTML) {
 		$txta = $this->all_entities_to_utf8($txta);
 		$txtb = $this->all_entities_to_utf8($txtb);
@@ -30111,7 +30100,7 @@ function Ellipse($x,$y,$rx,$ry,$style='S') {
 /*-- DIRECTW --*/
 // Added adaptation of shaded_box = AUTOSIZE-TEXT
 function AutosizeText($text,$w,$font,$style,$szfont=72) {
-	$text = $this->purify_utf8_text($text);
+	$text = Text::purify_utf8_text($text);
 	if ($this->text_input_as_HTML) {
 		$text = $this->all_entities_to_utf8($text);
 	}
@@ -30137,10 +30126,6 @@ function AutosizeText($text,$w,$font,$style,$szfont=72) {
 // ====================================================
 // ====================================================
 /*-- RTL --*/
-function reverse_letters($str) {
-	$str = strtr($str, '{}[]()', '}{][)(');
-	return $this->mb_strrev($str, $this->mb_enc); 
-}
 
 function magic_reverse_dir(&$chunk, $join=true, $dir) {
    if ($this->usingCoreFont) { return 0; }
@@ -30167,7 +30152,7 @@ function magic_reverse_dir(&$chunk, $join=true, $dir) {
 			foreach($bits AS $bitkey=>$bit) {
 				$bit = preg_replace("/\x07/"," ",$bit);
 				if (preg_match("/^[".$this->pregRTLchars.$nonDirchars." ]*$/u",$bit)) {
-					$bits[$bitkey] = $this->reverse_letters($bit); 
+					$bits[$bitkey] = Text::reverseLetters($bit); 
 				}
 				else if (preg_match("/[".$this->pregRTLchars."]/u",$bit)) {
 					if ($dir == 'rtl') {
@@ -30182,10 +30167,10 @@ function magic_reverse_dir(&$chunk, $join=true, $dir) {
 					foreach($sbits AS $sbitkey=>$sbit) {
 						$sbit = preg_replace("/\x07/","",$sbit);
 						if (preg_match("/^[".$this->pregRTLchars.$nonDirchars." ]*$/u",$sbit)) {
-							$sbits[$sbitkey] = $this->reverse_letters($sbit); 
+							$sbits[$sbitkey] = Text::reverseLetters($sbit); 
 						}
 						else if (preg_match("/[".$this->pregRTLchars."]/u",$sbit) && $dir=='rtl') {
-							$sbits[$sbitkey] = $this->reverse_letters($sbit); 
+							$sbits[$sbitkey] = Text::reverseLetters($sbit); 
 						}
 						else { 
 							$sbits[$sbitkey] = $sbit; 
@@ -30195,7 +30180,7 @@ function magic_reverse_dir(&$chunk, $join=true, $dir) {
 					$bits[$bitkey] = implode('',$sbits); 
 				}
 				else if (preg_match("/[".$this->pregRTLchars."]/u",$bit) && $dir=='rtl') {
-					$bits[$bitkey] = $this->reverse_letters($bit); 
+					$bits[$bitkey] = Text::reverseLetters($bit); 
 				}
 				else { 
 					$bits[$bitkey] = $bit; 
@@ -30204,11 +30189,11 @@ function magic_reverse_dir(&$chunk, $join=true, $dir) {
 			if ($dir == 'rtl') { $bits = array_reverse($bits,false); }
 			$chunk = implode(' ',$bits);
 		}
-		else { $chunk = $this->reverse_letters($chunk); }
+		else { $chunk = Text::reverseLetters($chunk); }
 		$contains_rtl = true;
 
 		// Un-Reverse numerals back to ltr
-		$chunk = preg_replace("/([\x{0660}-\x{0669}]+)/ue", '$this->reverse_letters(\'\\1\')', $chunk );
+		$chunk = preg_replace("/([\x{0660}-\x{0669}]+)/ue", 'Text::reverseLetters(\'\\1\')', $chunk );
 
 		if ($dir == 'rtl') {
 			if ($endSpace) { $chunk = ' '.$chunk; }
@@ -30544,84 +30529,13 @@ function SubstituteCharsMB(&$writehtml_a, &$writehtml_i, &$writehtml_e) {
 }
 
 
-function setHiEntitySubstitutions() {
-	$entarr = array (
-  'nbsp' => '160',  'iexcl' => '161',  'cent' => '162',  'pound' => '163',  'curren' => '164',  'yen' => '165',  'brvbar' => '166',  'sect' => '167',
-  'uml' => '168',  'copy' => '169',  'ordf' => '170',  'laquo' => '171',  'not' => '172',  'shy' => '173',  'reg' => '174',  'macr' => '175',
-  'deg' => '176',  'plusmn' => '177',  'sup2' => '178',  'sup3' => '179',  'acute' => '180',  'micro' => '181',  'para' => '182',  'middot' => '183',
-  'cedil' => '184',  'sup1' => '185',  'ordm' => '186',  'raquo' => '187',  'frac14' => '188',  'frac12' => '189',  'frac34' => '190',
-  'iquest' => '191',  'Agrave' => '192',  'Aacute' => '193',  'Acirc' => '194',  'Atilde' => '195',  'Auml' => '196',  'Aring' => '197',
-  'AElig' => '198',  'Ccedil' => '199',  'Egrave' => '200',  'Eacute' => '201',  'Ecirc' => '202',  'Euml' => '203',  'Igrave' => '204',
-  'Iacute' => '205',  'Icirc' => '206',  'Iuml' => '207',  'ETH' => '208',  'Ntilde' => '209',  'Ograve' => '210',  'Oacute' => '211',
-  'Ocirc' => '212',  'Otilde' => '213',  'Ouml' => '214',  'times' => '215',  'Oslash' => '216',  'Ugrave' => '217',  'Uacute' => '218',
-  'Ucirc' => '219',  'Uuml' => '220',  'Yacute' => '221',  'THORN' => '222',  'szlig' => '223',  'agrave' => '224',  'aacute' => '225',
-  'acirc' => '226',  'atilde' => '227',  'auml' => '228',  'aring' => '229',  'aelig' => '230',  'ccedil' => '231',  'egrave' => '232',
-  'eacute' => '233',  'ecirc' => '234',  'euml' => '235',  'igrave' => '236',  'iacute' => '237',  'icirc' => '238',  'iuml' => '239',
-  'eth' => '240',  'ntilde' => '241',  'ograve' => '242',  'oacute' => '243',  'ocirc' => '244',  'otilde' => '245',  'ouml' => '246',
-  'divide' => '247',  'oslash' => '248',  'ugrave' => '249',  'uacute' => '250',  'ucirc' => '251',  'uuml' => '252',  'yacute' => '253',
-  'thorn' => '254',  'yuml' => '255',  'OElig' => '338',  'oelig' => '339',  'Scaron' => '352',  'scaron' => '353',  'Yuml' => '376',
-  'fnof' => '402',  'circ' => '710',  'tilde' => '732',  'Alpha' => '913',  'Beta' => '914',  'Gamma' => '915',  'Delta' => '916',
-  'Epsilon' => '917',  'Zeta' => '918',  'Eta' => '919',  'Theta' => '920',  'Iota' => '921',  'Kappa' => '922',  'Lambda' => '923',
-  'Mu' => '924',  'Nu' => '925',  'Xi' => '926',  'Omicron' => '927',  'Pi' => '928',  'Rho' => '929',  'Sigma' => '931',  'Tau' => '932',
-  'Upsilon' => '933',  'Phi' => '934',  'Chi' => '935',  'Psi' => '936',  'Omega' => '937',  'alpha' => '945',  'beta' => '946',  'gamma' => '947',
-  'delta' => '948',  'epsilon' => '949',  'zeta' => '950',  'eta' => '951',  'theta' => '952',  'iota' => '953',  'kappa' => '954',
-  'lambda' => '955',  'mu' => '956',  'nu' => '957',  'xi' => '958',  'omicron' => '959',  'pi' => '960',  'rho' => '961',  'sigmaf' => '962',
-  'sigma' => '963',  'tau' => '964',  'upsilon' => '965',  'phi' => '966',  'chi' => '967',  'psi' => '968',  'omega' => '969',
-  'thetasym' => '977',  'upsih' => '978',  'piv' => '982',  'ensp' => '8194',  'emsp' => '8195',  'thinsp' => '8201',  'zwnj' => '8204',
-  'zwj' => '8205',  'lrm' => '8206',  'rlm' => '8207',  'ndash' => '8211',  'mdash' => '8212',  'lsquo' => '8216',  'rsquo' => '8217',
-  'sbquo' => '8218',  'ldquo' => '8220',  'rdquo' => '8221',  'bdquo' => '8222',  'dagger' => '8224',  'Dagger' => '8225',  'bull' => '8226',
-  'hellip' => '8230',  'permil' => '8240',  'prime' => '8242',  'Prime' => '8243',  'lsaquo' => '8249',  'rsaquo' => '8250',  'oline' => '8254',
-  'frasl' => '8260',  'euro' => '8364',  'image' => '8465',  'weierp' => '8472',  'real' => '8476',  'trade' => '8482',  'alefsym' => '8501',
-  'larr' => '8592',  'uarr' => '8593',  'rarr' => '8594',  'darr' => '8595',  'harr' => '8596',  'crarr' => '8629',  'lArr' => '8656',
-  'uArr' => '8657',  'rArr' => '8658',  'dArr' => '8659',  'hArr' => '8660',  'forall' => '8704',  'part' => '8706',  'exist' => '8707',
-  'empty' => '8709',  'nabla' => '8711',  'isin' => '8712',  'notin' => '8713',  'ni' => '8715',  'prod' => '8719',  'sum' => '8721',
-  'minus' => '8722',  'lowast' => '8727',  'radic' => '8730',  'prop' => '8733',  'infin' => '8734',  'ang' => '8736',  'and' => '8743',
-  'or' => '8744',  'cap' => '8745',  'cup' => '8746',  'int' => '8747',  'there4' => '8756',  'sim' => '8764',  'cong' => '8773',
-  'asymp' => '8776',  'ne' => '8800',  'equiv' => '8801',  'le' => '8804',  'ge' => '8805',  'sub' => '8834',  'sup' => '8835',  'nsub' => '8836',
-  'sube' => '8838',  'supe' => '8839',  'oplus' => '8853',  'otimes' => '8855',  'perp' => '8869',  'sdot' => '8901',  'lceil' => '8968',
-  'rceil' => '8969',  'lfloor' => '8970',  'rfloor' => '8971',  'lang' => '9001',  'rang' => '9002',  'loz' => '9674',  'spades' => '9824',
-  'clubs' => '9827',  'hearts' => '9829',  'diams' => '9830',
- );
-	foreach($entarr AS $key => $val) {
-		$this->entsearch[] = '&'.$key.';';
-		$this->entsubstitute[] = code2utf($val);
-	}
-}
-
-function SubstituteHiEntities($html) {
-	// converts html_entities > ASCII 127 to unicode
-	// Leaves in particular &lt; to distinguish from tag marker
-	if (count($this->entsearch)) {
-		$html = str_replace($this->entsearch,$this->entsubstitute,$html);
-	}
-	return $html;
-}
-
-
-// Edited v1.2 Pass by reference; option to continue if invalid UTF-8 chars
-function is_utf8(&$string) {
-	if ($string === mb_convert_encoding(mb_convert_encoding($string, "UTF-32", "UTF-8"), "UTF-8", "UTF-32")) {
-		return true;
-	} 
-	else {
-	  if ($this->ignore_invalid_utf8) {
-		$string = mb_convert_encoding(mb_convert_encoding($string, "UTF-32", "UTF-8"), "UTF-8", "UTF-32") ;
-		return true;
-	  }
-	  else {
-		return false;
-	  }
-	}
-} 
-
-
-function purify_utf8($html,$lo=true) {
+function purify_utf8($html) {
 	// For HTML
 	// Checks string is valid UTF-8 encoded
 	// converts html_entities > ASCII 127 to UTF-8
 	// Only exception - leaves low ASCII entities e.g. &lt; &amp; etc.
 	// Leaves in particular &lt; to distinguish from tag marker
-	if (!$this->is_utf8($html)) { 
+	if (!Text::is_utf8($html)) { 
 		echo "<p><b>HTML contains invalid UTF-8 character(s)</b></p>"; 
 		while (mb_convert_encoding(mb_convert_encoding($html, "UTF-32", "UTF-8"), "UTF-8", "UTF-32") != $html) {
 			$a = iconv('UTF-8', 'UTF-8', $html);
@@ -30642,30 +30556,21 @@ function purify_utf8($html,$lo=true) {
 
 	// converts html_entities > ASCII 127 to UTF-8 
 	// Leaves in particular &lt; to distinguish from tag marker
-	$html = $this->SubstituteHiEntities($html);
+	$html = Text::substituteHiEntities($html);
 
 	// converts all &#nnn; or &#xHHH; to UTF-8 multibyte
 	// If $lo==true then includes ASCII < 128
-	$html = strcode2utf($html,$lo);
+	$html = Text::strcode2utf($html);
 	return ($html);
 }
 
-function purify_utf8_text($txt) {
-	// For TEXT
-	// Make sure UTF-8 string of characters
-	if (!$this->is_utf8($txt)) { $this->Error("Text contains invalid UTF-8 character(s)"); }
-
-	$txt = preg_replace("/\r/", "", $txt );
-
-	return ($txt);
-}
 function all_entities_to_utf8($txt) {
 	// converts txt_entities > ASCII 127 to UTF-8 
 	// Leaves in particular &lt; to distinguish from tag marker
-	$txt = $this->SubstituteHiEntities($txt);
+	$txt = Text::substituteHiEntities($txt);
 
 	// converts all &#nnn; or &#xHHH; to UTF-8 multibyte
-	$txt = strcode2utf($txt);
+	$txt = Text::strcode2utf($txt);
 
 	$txt = Text::lesser_entity_decode($txt);
 	return ($txt);
@@ -31170,7 +31075,7 @@ function AutoFont($html) {
 	$a=preg_split('/<(.*?)>/ms',$html,-1,PREG_SPLIT_DELIM_CAPTURE);
 	foreach($a as $i => $e) {
 	   if($i%2==0) {
-		$e = strcode2utf($e);
+		$e = Text::strcode2utf($e);
 		$e = Text::lesser_entity_decode($e);
 
 		// Use U=FFF0 and U+FFF1 to mark start and end of span tags to prevent nesting occurring
@@ -31454,7 +31359,7 @@ function ArabJoin($str) {
 	}
 	$ra = array_reverse($output);
 	$s = implode($ra);
-	$s = strcode2utf($s);
+	$s = Text::strcode2utf($s);
 	return $s;
 }
 
@@ -31480,13 +31385,6 @@ function get_arab_glyphs($char, $type) {
 }
 /*-- END RTL --*/
 
-
-function _getMQR() {
-	$mqr=ini_get("magic_quotes_runtime");
-	if (PHP_VERSION_ID < 50300) { return @get_magic_quotes_runtime(); }
-	else { return 0; }
-}
-
 //===========================
 // Functions originally in htmltoolkit - moved mPDF 4.0
 
@@ -31494,13 +31392,6 @@ function _getMQR() {
 
 function _cmpdom($a, $b) {
     return ($a["dom"] < $b["dom"]) ? -1 : 1;
-}
-
-function mb_strrev($str, $enc = 'utf-8'){
-	$ch = array();
-	$ch = preg_split('//u',$str);
-	$revch = array_reverse($ch);
-	return implode('',$revch);
 }
 
 /*-- COLUMNS --*/
@@ -31928,99 +31819,6 @@ function dec2other($num, $cp) {
 	return $rnum;
 }
 
-function dec2alpha($valor,$toupper="true"){
-// returns a string from A-Z to AA-ZZ to AAA-ZZZ
-// OBS: A = 65 ASCII TABLE VALUE
-  if (($valor < 1)  || ($valor > 18278)) return "?"; //supports 'only' up to 18278
-  $c1 = $c2 = $c3 = '';
-  if ($valor > 702) // 3 letters (up to 18278)
-    {
-      $c1 = 65 + floor(($valor-703)/676);
-      $c2 = 65 + floor((($valor-703)%676)/26);
-      $c3 = 65 + floor((($valor-703)%676)%26);
-    }
-  elseif ($valor > 26) // 2 letters (up to 702)
-  {
-      $c1 = (64 + (int)(($valor-1) / 26));
-      $c2 = (64 + (int)($valor % 26));
-      if ($c2 == 64) $c2 += 26;
-  }
-  else // 1 letter (up to 26)
-  {
-      $c1 = (64 + $valor);
-  }
-  $alpha = chr($c1);
-  if ($c2 != '') $alpha .= chr($c2);
-  if ($c3 != '') $alpha .= chr($c3);
-  if (!$toupper) $alpha = strtolower($alpha);
-  return $alpha;
-}
-
-
-function dec2roman($valor,$toupper=true){
- //returns a string as a roman numeral
-  $r1=$r2=$r3=$r4='';
-  if (($valor >= 5000) || ($valor < 1)) return "?"; //supports 'only' up to 4999
-  $aux = (int)($valor/1000);
-  if ($aux!==0)
-  {
-    $valor %= 1000;
-    while($aux!==0)
-    {
-    	$r1 .= "M";
-    	$aux--;
-    }
-  }
-  $aux = (int)($valor/100);
-  if ($aux!==0)
-  {
-    $valor %= 100;
-    switch($aux){
-    	case 3: $r2="C";
-    	case 2: $r2.="C";
-    	case 1: $r2.="C"; break;
-  	  case 9: $r2="CM"; break;
-  	  case 8: $r2="C";
-  	  case 7: $r2.="C";
-    	case 6: $r2.="C";
-      case 5: $r2="D".$r2; break;
-      case 4: $r2="CD"; break;
-      default: break;
-	  }
-  }
-  $aux = (int)($valor/10);
-  if ($aux!==0)
-  {
-    $valor %= 10;
-    switch($aux){
-    	case 3: $r3="X";
-    	case 2: $r3.="X";
-    	case 1: $r3.="X"; break;
-    	case 9: $r3="XC"; break;
-    	case 8: $r3="X";
-    	case 7: $r3.="X";
-  	  case 6: $r3.="X";
-      case 5: $r3="L".$r3; break;
-      case 4: $r3="XL"; break;
-      default: break;
-    }
-  }
-  switch($valor){
-  	case 3: $r4="I";
-  	case 2: $r4.="I";
-  	case 1: $r4.="I"; break;
-  	case 9: $r4="IX"; break;
-  	case 8: $r4="I";
-    case 7: $r4.="I";
-    case 6: $r4.="I";
-    case 5: $r4="V".$r4; break;
-    case 4: $r4="IV"; break;
-    default: break;
-  }
-  $roman = $r1.$r2.$r3.$r4;
-  if (!$toupper) $roman = strtolower($roman);
-  return $roman;
-}
 /*-- END LISTS --*/
 
 
